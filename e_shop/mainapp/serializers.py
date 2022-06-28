@@ -2,52 +2,20 @@ from rest_framework import serializers
 
 from mainapp.models import Category
 
-from django.db import connection
-
 
 class CategorySerializer(serializers.ModelSerializer):
+    sub_categories = serializers.SerializerMethodField()
+
     class Meta:
         model = Category
-        fields = ['id', 'title', 'parent_category']
+        fields = ['id', 'title', 'image', 'sub_categories']
 
-    def validate_parent_category(self, value):
+    def get_sub_categories(self, obj: Category):
+        sub_categories = Category.objects.filter(parent_category=obj.pk)
+        return SubCategorySerializer(sub_categories, many=True).data
 
-        # Если родительская категория не равна null.
-        if value:
 
-            # Категория не может находится в самой себе.
-            if self.instance.pk == value.pk:
-                raise serializers.ValidationError('A category cannot be in itself.')
-            
-            # Проверка на цикличность категории.
-            cursor = connection.cursor()
-            # TODO: может SQL запросы вынести в какой-ниюудь файл?
-            query = '''
-            WITH RECURSIVE tmp AS (
-                SELECT fc.id, fc.parent_category_id
-                FROM mainapp_category AS fc
-                WHERE fc.id = %s
-
-                UNION ALL
-
-                SELECT sc.id, sc.parent_category_id
-                FROM mainapp_category sc
-                JOIN tmp
-                ON sc.id = tmp.parent_category_id
-            )
-            SELECT COUNT(tmp.id)
-            FROM tmp
-            WHERE tmp.id = %s;
-            '''
-            cursor.execute(query, (value.pk, self.instance.pk))
-            
-            result = cursor.fetchone()[0]
-            if result != 0:
-                raise serializers.ValidationError('The cyclicality of the categories was found.')
-
-        return value
-
-class CategoryChildSerializer(serializers.ModelSerializer):
+class SubCategorySerializer(serializers.ModelSerializer):
     class Meta:
         model = Category
-        fields = ['id', 'title']
+        fields = ['id', 'title', 'image']
