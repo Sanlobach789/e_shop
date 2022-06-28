@@ -14,20 +14,37 @@ Including another URLconf
     2. Add a URL to urlpatterns:  path('blog/', include('blog.urls'))
 """
 from django.contrib import admin
-from django.urls import path, include
 from django.conf.urls.static import static
+from django.urls import path, re_path, include
 
 from rest_framework.routers import DefaultRouter
-from mainapp.views_api import CategoryModelViewSet
+from rest_framework.permissions import AllowAny
+from drf_yasg.views import get_schema_view
+from drf_yasg import openapi
 
+from mainapp.views_api import CategoryModelViewSet
 from e_shop.settings import MEDIA_URL, MEDIA_ROOT
 
 
 router = DefaultRouter()
 router.register('categories', CategoryModelViewSet)
 
+schema_view = get_schema_view(
+    openapi.Info(
+        title='e_shop',
+        default_version='0.1',
+        description='Documentation to out project',
+    ),
+    public=True,
+    permission_classes=[AllowAny]
+)
+
 urlpatterns = [
     path('admin/', admin.site.urls),
     path('api-auth/', include('rest_framework.urls')),
-    path('', include(router.urls))
+    path('', include(router.urls)),
+    re_path(r'^swagger(?P<format>\.json|\.yaml)$',
+            schema_view.without_ui(cache_timeout=0), name='schema-json'),
+    path('swagger/', schema_view.with_ui('swagger', cache_timeout=0),
+            name='schema-swagger-ui'),
 ] + static(MEDIA_URL, document_root=MEDIA_ROOT)
