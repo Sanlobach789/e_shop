@@ -6,7 +6,7 @@ from django.core.exceptions import ValidationError
 
 
 def path_and_rename(instance, filename):
-    upload_to = 'media'
+    upload_to = MODEL_STORAGE_DIRECTORIES[type(instance)]
     ext = filename.split('.')[-1]
     # get filename from uuid pk
     if instance.pk:
@@ -72,3 +72,8 @@ class Category(models.Model):
     
     def __str__(self) -> str:
         return f'Category: {self.title} ({self.id})'
+
+
+MODEL_STORAGE_DIRECTORIES = {
+    Category: 'categories_images'
+}
