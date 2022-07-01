@@ -2,6 +2,7 @@ import os
 from uuid import uuid4
 
 from django.db import models, connection
+from django.utils.text import slugify
 from django.core.exceptions import ValidationError
 
 
@@ -18,8 +19,22 @@ def path_and_rename(instance, filename):
     return os.path.join(upload_to, filename)
 
 
+# Фильтр
+class Filter(models.Model):
+    name = models.CharField(max_length=256)                         # название фильтра
+    key = models.SlugField(unique=True, db_index=True, blank=True)  # ключ (идетификатор фильтра)
+
+    def save(self, *args, **kwargs) -> None:
+        self.key = slugify(self.name)
+        return super().save(*args, **kwargs)
+
+    def __str__(self) -> str:
+        return self.name
+
+
+# Категория
 class Category(models.Model):
-    title = models.CharField(max_length=256,)
+    title = models.CharField(max_length=256, )
     image = models.ImageField(upload_to=path_and_rename, blank=True, default="no-avatar.jpg")
     parent_category = models.ForeignKey("self", on_delete=models.CASCADE, null=True, blank=True)
 
@@ -38,7 +53,7 @@ class Category(models.Model):
             
             # Проверка на цикличность категории.
             cursor = connection.cursor()
-            # TODO: может SQL запросы вынести в какой-ниюудь файл?
+            # NOTE: может SQL запросы вынести в какой-ниюудь файл?
             query = '''
             WITH RECURSIVE tmp AS (
                 SELECT fc.id, fc.parent_category_id
@@ -71,7 +86,36 @@ class Category(models.Model):
         return super().save(*args, **kwargs)
     
     def __str__(self) -> str:
-        return f'Category: {self.title} ({self.id})'
+        return f'{self.title} ({self.id})'
+
+
+# Товар
+class Item(models.Model):
+    category = models.ForeignKey(Category, on_delete=models.CASCADE)
+
+
+# Модель для связи фильтров с товарами
+class ItemFilter(models.Model):
+    filter = models.ForeignKey(Filter, on_delete=models.CASCADE)
+    item = models.ForeignKey(Item, on_delete=models.CASCADE)
+    name = models.CharField(max_length=256) # название значения
+    value = models.SlugField(db_index=True) # значение для фильтрации
+
+    class Meta:
+        unique_together = ('item', 'filter')
+
+    def save(self, *args, **kwargs) -> None:
+        self.value = slugify(self.name)
+        return super().save(*args, **kwargs)
+
+
+# Модель для связи фильтров с категориями
+class CategoryFilter(models.Model):
+    category = models.ForeignKey(Category, on_delete=models.CASCADE)
+    filter = models.ForeignKey(Filter, on_delete=models.CASCADE)
+
+    class Meta:
+        unique_together = ('category', 'filter')
 
 
 MODEL_STORAGE_DIRECTORIES = {
