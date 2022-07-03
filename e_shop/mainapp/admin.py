@@ -26,16 +26,22 @@ class ItemFilterInline(admin.TabularInline):
     extra = 0
     readonly_fields = ['filter']
     fields = ['filter', 'name']
-    # FIXME: не работает
-    exclude = ['DELETE']
+    can_delete = False
 
 
 @admin.register(Item)
 class ItemAdmin(admin.ModelAdmin):
     list_display = ['id', 'category']
-    # TODO: не показывать ItemFilterInline при создании,
-    # но показывать при обновлении
-    inlines = [ItemFilterInline]
+    
+    def get_inlines(self, obj, *args, **kwargs):
+        # Если товар уже создан
+        if obj:
+            # Показываем фильтры
+            return [ItemFilterInline]
+        # Если товар только создается
+        else:
+            # Скрываем фильтры
+            return []
 
 
 @admin.register(Filter)
