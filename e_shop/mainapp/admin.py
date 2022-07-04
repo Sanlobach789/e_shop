@@ -28,6 +28,9 @@ class ItemFilterInline(admin.TabularInline):
     fields = ['filter', 'name']
     can_delete = False
 
+    def has_add_permission(self, request, obj):
+        return False
+
 
 @admin.register(Item)
 class ItemAdmin(admin.ModelAdmin):
@@ -54,9 +57,9 @@ class FilterAdmin(admin.ModelAdmin):
 
 @receiver(pre_save, sender=CategoryFilter)
 def add_item_filters_existing(instance: CategoryFilter, **kwargs):
-    '''
+    """
     Добавление/обновление фильтров товаров ("синхронизация" с категориями)
-    '''
+    """
     # Получаем старый прошлый фильтр категории.
     try:
         category_filter_old = CategoryFilter.objects\
@@ -89,10 +92,10 @@ def add_item_filters_existing(instance: CategoryFilter, **kwargs):
 
 @receiver(post_delete, sender=CategoryFilter)
 def remove_item_filters_on_delete_category_filter(instance: CategoryFilter, **kwargs):
-    '''
+    """
     Удаляет фильтры из товаров,
     которые были удалены из категории
-    '''
+    """
     # Получаем товары в категории
     items = instance.category.item_set.all()
     # Удаляем фильтр из товаров категории
@@ -101,9 +104,9 @@ def remove_item_filters_on_delete_category_filter(instance: CategoryFilter, **kw
 
 @receiver(post_save, sender=Item)
 def add_item_filters_new_item(instance: Item, created: bool, **kwargs):
-    '''
+    """
     Добавление фильтров категории к новому товарам
-    '''
+    """
     # Получаем фильтры категории
     category_filters = instance.category.categoryfilter_set.select_related('filter')
         

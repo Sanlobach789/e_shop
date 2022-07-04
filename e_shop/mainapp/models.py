@@ -25,7 +25,8 @@ class Filter(models.Model):
     key = models.SlugField(unique=True, db_index=True, blank=True)  # ключ (идетификатор фильтра)
 
     def save(self, *args, **kwargs) -> None:
-        self.key = slugify(self.name)
+        # FIXME: При выключенном allow_unicode сохраняет key пустым
+        self.key = slugify(self.name, allow_unicode=True)
         return super().save(*args, **kwargs)
 
     def __str__(self) -> str:
