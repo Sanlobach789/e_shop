@@ -22,12 +22,13 @@ from rest_framework.permissions import AllowAny
 from drf_yasg.views import get_schema_view
 from drf_yasg import openapi
 
-from mainapp.views_api import CategoryModelViewSet
+from mainapp.views_api import CategoryModelViewSet, ItemModelViewSet
 from e_shop.settings import MEDIA_URL, MEDIA_ROOT
 
 
 router = DefaultRouter()
 router.register('categories', CategoryModelViewSet)
+router.register('categories/(?P<category_id>[0-9]+)/items', ItemModelViewSet)
 
 schema_view = get_schema_view(
     openapi.Info(
