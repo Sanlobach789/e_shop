@@ -102,7 +102,8 @@ class Category(models.Model):
             raise ValidationError('The node cannot contain products.')
         
         # Не узловая категория не может содержать подкатегорий
-        if not self.node and self.category_set.count() > 0 or not self.parent_category.node:
+        if not self.node and self.category_set.count() > 0\
+            or self.parent_category and not self.parent_category.node:
             raise ValidationError('The non-node cannot contain subcategories.')
         # endregion
         
@@ -149,12 +150,31 @@ class CategoryFilter(models.Model):
 
 class Item(models.Model):
     """Модель товара"""
+    name = models.CharField('Название', max_length=256)
     category = models.ForeignKey(Category, on_delete=models.CASCADE, verbose_name='Категория')
+    price = models.DecimalField('Цена', max_digits=10, decimal_places=2)
+    old_price = models.DecimalField('Старая цена', max_digits=10, decimal_places=2)
+    description = models.CharField('Описание', max_length=256)
+    width = models.PositiveIntegerField('Ширина')
+    height = models.PositiveIntegerField('Высота')
+    depth = models.PositiveIntegerField('Толщина')
+    weight = models.PositiveIntegerField('Вес')
 
     class Meta:
         verbose_name = 'Товар'
         verbose_name_plural = 'Товары'
 
+
+class ItemImage(models.Model):
+    """Модель изображения товара"""
+    item = models.ForeignKey(Item, on_delete=models.CASCADE, verbose_name='Товар')
+    image = models.ImageField('Изображение', upload_to=path_and_rename,
+                              blank=True, default='no-avatar.jpg')
+    priority = models.SmallIntegerField('Приоритет')
+
+    class Meta:
+        ordering = ('priority',)
+    
 
 class CategoryFilterValue(models.Model):
     """Модель значения фильтра в категории"""
@@ -188,7 +208,8 @@ class ItemProperty(models.Model):
 
 
 MODEL_STORAGE_DIRECTORIES = {
-    Category: 'category_images'
+    Category: 'category_images',
+    ItemImage: 'item_images',
 }
 
 

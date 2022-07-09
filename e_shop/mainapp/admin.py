@@ -4,7 +4,7 @@ from .forms import (
     ItemPropertyForm, ItemForm, CategoryFilterValueForm, CategoryForm
 )
 from .models import (
-    Category, Filter, CategoryFilter, Item, ItemProperty, CategoryFilterValue
+    Category, Filter, CategoryFilter, Item, ItemProperty, CategoryFilterValue, ItemImage
 )
 
 
@@ -37,6 +37,12 @@ class CategoryFilterValueInline(admin.TabularInline):
     extra = 0
     exclude = ('value',)
     form = CategoryFilterValueForm
+
+
+class ItemImageInline(admin.TabularInline):
+    """Inline форма изображений товара"""
+    model = ItemImage
+    extra = 0
 
 
 @admin.register(Category)
@@ -78,12 +84,13 @@ class FilterAdmin(admin.ModelAdmin):
 @admin.register(Item)
 class ItemAdmin(admin.ModelAdmin):
     """Admin форма для товаров"""
-    list_display = ('category',)
+    list_display = ('name', 'category', 'price', 'old_price', 'weight')
     ordering = ('id',)
+    search_fields = ('name',)
     form = ItemForm
 
     def get_inlines(self, request, obj):
-        inlines = []
+        inlines = [ItemImageInline]
         if obj:
             inlines.append(ItemPropertyInline)
         return inlines
