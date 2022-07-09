@@ -45,7 +45,7 @@ class Category(models.Model):
                               blank=True, default='no-avatar.jpg')
     parent_category = models.ForeignKey('self', on_delete=models.CASCADE, null=True, blank=True,
                                         verbose_name='Родительский каталог')
-    node = models.BooleanField('Узловой', default=True)
+    node = models.BooleanField('Узловая', default=True)
 
     class Meta:
         verbose_name = 'Категория'
@@ -153,7 +153,7 @@ class Item(models.Model):
     name = models.CharField('Название', max_length=256)
     category = models.ForeignKey(Category, on_delete=models.CASCADE, verbose_name='Категория')
     price = models.DecimalField('Цена', max_digits=10, decimal_places=2)
-    old_price = models.DecimalField('Старая цена', max_digits=10, decimal_places=2)
+    old_price = models.DecimalField('Старая цена', max_digits=10, decimal_places=2, null=True, blank=False)
     description = models.CharField('Описание', max_length=256)
     width = models.PositiveIntegerField('Ширина')
     height = models.PositiveIntegerField('Высота')
