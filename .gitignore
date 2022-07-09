@@ -129,6 +129,7 @@ dmypy.json
 .pyre/
 
 .idea
+.vscode
 
 e_shop/e_shop/env.py
 
