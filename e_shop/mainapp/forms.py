@@ -86,5 +86,5 @@ class CategoryForm(forms.ModelForm):
                 [(None, NONE_VALUE_TEXT)]
                 + list(map(lambda x: (x.id, x.name), available_categories))
             )
-            field.choices =  available_categories
+            field.choices = available_categories
         return super().get_initial_for_field(field, field_name)

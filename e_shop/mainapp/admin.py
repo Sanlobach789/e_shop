@@ -54,16 +54,28 @@ class CategoryAdmin(admin.ModelAdmin):
     search_fields = ('name',)
     form = CategoryForm
 
-    # TODO: если node = True, показывать только категории, иначе - только фильтры
-    def get_inlines(self, request, obj):
-        inlines = [CategoryInline, CategoryFilterInline]
-        # inlines = []
-        # if obj:
-        #     if not obj.node:
-        #         inlines.append(CategoryFilterInline)
-        #     else:
-        #         inlines.append(CategoryInline)
-        return inlines
+    def change_view(self, request, object_id, form_url='', extra_context=None):
+        obj = Category.objects.filter(id=object_id).first()
+        if obj.node:
+            self.inlines = [CategoryInline]
+        else:
+            self.inlines = [CategoryFilterInline]
+        return super(CategoryAdmin, self).change_view(request, object_id, form_url='', extra_context=None)
+
+    def add_view(self, request, form_url='', extra_context=None):
+        self.inlines = []
+        return super(CategoryAdmin, self).add_view(request, form_url='', extra_context=None)
+
+    # # TODO: если node = True, показывать только категории, иначе - только фильтры
+    # def get_inlines(self, request, obj):
+    #     # inlines = [CategoryInline, CategoryFilterInline]
+    #     inlines = []
+    #     if obj:
+    #         if not obj.node:
+    #             inlines.append(CategoryFilterInline)
+    #         else:
+    #             inlines.append(CategoryInline)
+    #     return inlines
 
     def get_field_queryset(self, db, db_field, request):
         if db_field.name == 'parent_category':
