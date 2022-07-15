@@ -137,9 +137,8 @@ AUTH_USER_MODEL = 'authapp.User'
 # Email settings
 EMAIL_HOST = 'smtp.yandex.ru'
 EMAIL_PORT = 465
-EMAIL_HOST_USER = 'eshop.shop@yandex.ru'
-EMAIL_HOST_PASSWORD = 'mpqzsorazihjnwgo'
-# EMAIL_USE_TLS = False
+EMAIL_HOST_USER = EMAIL_HOST_USER
+EMAIL_HOST_PASSWORD = EMAIL_HOST_PASSWORD
 EMAIL_USE_SSL = True
 
 # DRF settings
