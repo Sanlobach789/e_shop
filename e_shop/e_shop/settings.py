@@ -38,6 +38,7 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
+    'django_extensions',
     'django_filters',
     'rest_framework',
     'djoser',
@@ -133,6 +134,14 @@ DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
 AUTH_USER_MODEL = 'authapp.User'
 
+# Email settings
+EMAIL_HOST = 'smtp.yandex.ru'
+EMAIL_PORT = 465
+EMAIL_HOST_USER = 'eshop.shop@yandex.ru'
+EMAIL_HOST_PASSWORD = 'mpqzsorazihjnwgo'
+# EMAIL_USE_TLS = False
+EMAIL_USE_SSL = True
+
 # DRF settings
 REST_FRAMEWORK = {
     # Use Django's standard `django.contrib.auth` permissions,
@@ -147,6 +156,13 @@ REST_FRAMEWORK = {
     'DEFAULT_AUTHENTICATION_CLASSES': (
         'rest_framework_simplejwt.authentication.JWTAuthentication',
     ),
+}
+
+DJOSER = {
+    'SEND_ACTIVATION_EMAIL': True,
+    'ACTIVATION_URL': '#/activate/{uid}/{token}',
+    'PASSWORD_CHANGED_EMAIL_CONFIRMATION': True,
+    'LOGOUT_ON_PASSWORD_CHANGE': True,
 }
 
 SIMPLE_JWT = {
