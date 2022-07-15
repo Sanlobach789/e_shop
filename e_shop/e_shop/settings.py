@@ -40,6 +40,7 @@ INSTALLED_APPS = [
     'django_filters',
     'rest_framework',
     'djoser',
+    'phonenumber_field',
     'drf_yasg',
     'authapp',
     'mainapp',
@@ -160,3 +161,6 @@ SWAGGER_SETTINGS = {
         }
    }
 }
+
+# django-phonenumber-field settings
+PHONENUMBER_DEFAULT_REGION = 'RU'
