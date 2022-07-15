@@ -11,6 +11,7 @@ https://docs.djangoproject.com/en/3.2/ref/settings/
 """
 
 import os
+import datetime
 from pathlib import Path
 from e_shop.env import *
 
@@ -149,7 +150,9 @@ REST_FRAMEWORK = {
 }
 
 SIMPLE_JWT = {
-   'AUTH_HEADER_TYPES': ('Bearer',),
+    'ACCESS_TOKEN_LIFETIME': datetime.timedelta(days=60),
+    'REFRESH_TOKEN_LIFETIME': datetime.timedelta(days=120),
+    'AUTH_HEADER_TYPES': ('Bearer',),
 }
 
 SWAGGER_SETTINGS = {
