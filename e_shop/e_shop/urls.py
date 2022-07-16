@@ -22,6 +22,7 @@ from rest_framework.permissions import AllowAny
 from drf_yasg.views import get_schema_view
 from drf_yasg import openapi
 
+from authapp.views_api import ActivateUserViewSet
 from mainapp.views_api import CategoryModelViewSet, ItemModelViewSet
 from e_shop.settings import MEDIA_URL, MEDIA_ROOT
 
@@ -45,6 +46,8 @@ urlpatterns = [
     path('api-auth/', include('rest_framework.urls')),
     re_path(r'^auth/', include('djoser.urls')),
     re_path(r'^auth/', include('djoser.urls.jwt')),
+    path('auth/users/activation/<uid>/<token>/',
+         ActivateUserViewSet.as_view({'get': 'activation'})),
     path('', include(router.urls)),
     re_path(r'^swagger(?P<format>\.json|\.yaml)$',
             schema_view.without_ui(cache_timeout=0), name='schema-json'),
