@@ -26,7 +26,9 @@ class ItemPropertyInline(admin.TabularInline):
     extra = 0
     form = ItemPropertyForm
     can_delete = False
-    
+    readonly_fields = ('filter',)
+    fields = ('filter', 'value')
+
     def has_add_permission(self, request, obj) -> bool:
         return False
 
@@ -85,7 +87,7 @@ class FilterAdmin(admin.ModelAdmin):
 @admin.register(Item)
 class ItemAdmin(admin.ModelAdmin):
     """Admin форма для товаров"""
-    list_display = ('name', 'category', 'price', 'old_price', 'weight')
+    list_display = ('name', 'category', 'price', 'old_price', 'weight', 'quantity')
     ordering = ('id',)
     search_fields = ('name',)
     form = ItemForm

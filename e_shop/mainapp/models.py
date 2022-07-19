@@ -159,10 +159,14 @@ class Item(models.Model):
     height = models.PositiveIntegerField('Высота')
     depth = models.PositiveIntegerField('Толщина')
     weight = models.PositiveIntegerField('Вес')
+    quantity = models.PositiveIntegerField('Количество', default=0, blank=True)
 
     class Meta:
         verbose_name = 'Товар'
         verbose_name_plural = 'Товары'
+
+    def __str__(self) -> str:
+        return f'{self.name}'
 
 
 class ItemImage(models.Model):

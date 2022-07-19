@@ -35,6 +35,9 @@ class ItemPropertyForm(forms.ModelForm):
 
 class ItemForm(forms.ModelForm):
     """Форма просмтора/создания товара"""
+    add_quantity = forms.IntegerField(label='Добавить количество', required=False,
+                                      widget=forms.NumberInput(attrs={'required': False}))
+
     class Meta:
         model = Item
         fields = '__all__'
@@ -49,7 +52,15 @@ class ItemForm(forms.ModelForm):
                 + list(map(lambda x: (x.id, x.name), available_categories))
             )
             field.choices =  available_categories
+        elif field_name == 'quantity':
+            field.widget.attrs['readonly'] = self.instance.pk is not None
+            field.widget.attrs['required'] = False
         return super().get_initial_for_field(field, field_name)
+
+    def save(self, commit):
+        if self.cleaned_data.get('add_quantity', 0):
+            self.instance.quantity += self.cleaned_data.get('add_quantity', 0)
+        return super().save(commit)
 
 
 class CategoryFilterValueForm(forms.ModelForm):
