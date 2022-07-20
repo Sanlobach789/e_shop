@@ -1,3 +1,5 @@
+from decimal import Decimal
+
 from django.db import models
 from django.conf import settings
 from django.dispatch import receiver
@@ -18,6 +20,46 @@ class Basket(models.Model):
     def __str__(self) -> str:
         return f'Корзина {self.user.email}'
 
+    def add_item(self, item: Item, quantity: int = 1) -> 'ItemBasket':
+        """Добавить товар в корзину"""
+        if quantity < 0:
+            raise ValueError('Нельзя добавить отрицательное колчество товаров')
+        itembasket, _ = self.itembasket_set.get_or_create(item=item)
+        itembasket.quantity += quantity
+        itembasket.save()
+        return itembasket
+
+    def remove_item(self, item: Item, quantity: int = 1, remove_all: bool = False) -> None:
+        """Убрать товар из корзины"""
+        if quantity < 0:
+            raise ValueError('Нельзя убрать отрицательное колчество товаров')
+
+        itembasket = self.itembasket_set.get(item=item)
+        if remove_all:
+            itembasket.quantity -= itembasket.quantity
+        else:
+            itembasket.quantity -= min(itembasket.quantity, quantity)
+
+        itembasket.save()
+
+    def clear(self) -> None:
+        """Очищает корзину"""
+        self.itembasket_set.all().delete()
+
+    @property
+    def quantity(self) -> int:
+        return self.itembasket_set.aggregate(quantity=models.Sum('quantity'))['quantity']
+
+    @property
+    def store_quantity(self) -> int:
+        return self.itembasket_set.aggregate(quantity=models.Sum(
+            models.Min(models.F('quantity'), models.F('item__quantity'))))['quantity']
+
+    @property
+    def cost(self) -> Decimal:
+        return self.itembasket_set.aggregate(cost=models.Sum(
+            models.Min(models.F('quantity'), models.F('item__quantity'))
+            * models.F('item__price')))['cost']
 
 class ItemBasket(models.Model):
     """Модель товара в корзине"""
@@ -25,7 +67,7 @@ class ItemBasket(models.Model):
                                verbose_name='Корзина')
     item = models.ForeignKey(Item, on_delete=models.CASCADE,
                              verbose_name='Товар')
-    quantity = models.PositiveIntegerField('Количество')
+    quantity = models.PositiveIntegerField('Количество', default=0)
 
     class Meta:
         verbose_name = 'Товар в корзине'
@@ -43,6 +85,10 @@ class Import(models.Model):
 
     def __str__(self) -> str:
         return f'{self.name}'
+
+    @property
+    def quantity(self) -> int:
+        return self.importitem_set.aggregate(quantity=models.Sum('quantity'))['quantity']
 
 
 class ImportItem(models.Model):
@@ -69,3 +115,12 @@ def create_basket_for_user_on_create(instance: settings.AUTH_USER_MODEL, created
     """
     if created:
         Basket.objects.create(user=instance)
+
+
+@receiver(post_save, sender=ItemBasket)
+def delete_item_from_basket(instance: ItemBasket, **kwargs):
+    """
+    Удаляет полностью товар из корзины, если его количество в корзине равно 0
+    """
+    if instance.quantity == 0:
+        instance.delete()

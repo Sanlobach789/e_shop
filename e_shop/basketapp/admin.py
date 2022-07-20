@@ -1,5 +1,4 @@
 from django.contrib import admin
-from django.db.models import F, Sum, Min
 
 from .models import Basket, ItemBasket, Import, ImportItem
 
@@ -19,29 +18,20 @@ class ItemBasketInline(admin.TabularInline):
 class BasketAdmin(admin.ModelAdmin):
     """Админ форма для корзины"""
     list_display = ('user', 'quantity', 'store_quantity', 'cost')
+    readonly_fields = ('user',)
     inlines = (ItemBasketInline,)
 
     @admin.display(description='В корзине')
     def quantity(self, obj: Basket):
-        return obj.itembasket_set.aggregate(quantity=Sum('quantity'))['quantity']
+        return obj.quantity
 
     @admin.display(description='Доступно')
     def store_quantity(self, obj: Basket):
-        return obj.itembasket_set.aggregate(quantity=Sum(Min(F('quantity'),
-                                                             F('item__quantity'))))['quantity']
+        return obj.store_quantity
 
     @admin.display(description='Стоимость')
     def cost(self, obj: Basket):
-        # TODO: решить нужно ли это, и если нужно, то в каком виде
-        # Стомость корзины с учетом наличия
-        return obj.itembasket_set.aggregate(cost=Sum(
-            Min(
-                F('quantity'), F('item__quantity')
-            )
-            * F('item__price')
-        ))['cost']
-        # Стоимость корзины без учета наличия
-        # return obj.itembasket_set.aggregate(cost=Sum(F('quantity') * F('item__price')))['cost']
+        return obj.cost
 
 
 class ImportItemInline(admin.TabularInline):
@@ -64,7 +54,8 @@ class ImportAdmin(admin.ModelAdmin):
     """Админ форма для импорта"""
     list_display = ('name', 'quantity')
     inlines = (ImportItemInline,)
+    search_fields = ('name',)
 
     @admin.display(description='Количество')
     def quantity(self, obj: Import):
-        return obj.importitem_set.all().aggregate(quantity=Sum('quantity'))['quantity']
+        return obj.quantity
