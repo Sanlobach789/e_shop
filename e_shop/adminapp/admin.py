@@ -21,10 +21,14 @@ class ImportItemInline(admin.TabularInline):
 @admin.register(Import)
 class ImportAdmin(admin.ModelAdmin):
     """Админ форма для импорта"""
-    list_display = ('name', 'quantity')
+    list_display = ('name', 'quantity', 'created_at')
     inlines = (ImportItemInline,)
     search_fields = ('name',)
+    ordering = ('-created_at',)
 
     @admin.display(description='Количество')
     def quantity(self, obj: Import):
         return obj.quantity
+
+    def has_delete_permission(self, *args, **kwargs) -> bool:
+        return False

@@ -1,6 +1,7 @@
 from django import forms
 
 from mainapp.models import ItemProperty, CategoryFilterValue, Item, Category
+from adminapp.models import Import
 
 
 NONE_VALUE_TEXT = '---------'
@@ -30,7 +31,7 @@ class ItemPropertyForm(forms.ModelForm):
                     + list(map(lambda x: (x.id, x.name), available_values))
                 )
                 field.choices =  available_values
-        return super().get_initial_for_field(field, field_name)    
+        return super().get_initial_for_field(field, field_name)
 
 
 class ItemForm(forms.ModelForm):
@@ -59,7 +60,7 @@ class ItemForm(forms.ModelForm):
 
     def save(self, commit):
         if self.cleaned_data.get('add_quantity', 0):
-            self.instance.quantity += self.cleaned_data.get('add_quantity', 0)
+            Import.import_from_item_form(self.instance, self.cleaned_data.get('add_quantity'))
         return super().save(commit)
 
 
