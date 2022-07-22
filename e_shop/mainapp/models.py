@@ -168,6 +168,10 @@ class Item(models.Model):
     def __str__(self) -> str:
         return f'{self.name}'
 
+    @property
+    def basket_quantity(self) -> int:
+        return self.itembasket_set.aggregate(q=models.Sum('quantity'))['q']
+
 
 class ItemImage(models.Model):
     """Модель изображения товара"""

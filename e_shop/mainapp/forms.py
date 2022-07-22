@@ -38,6 +38,8 @@ class ItemForm(forms.ModelForm):
     """Форма просмтора/создания товара"""
     add_quantity = forms.IntegerField(label='Добавить количество', required=False,
                                       widget=forms.NumberInput(attrs={'required': False}))
+    basket_quantity = forms.IntegerField(label='В корзинах пользователей',
+                                         widget=forms.NumberInput(attrs={'readonly': True}))
 
     class Meta:
         model = Item

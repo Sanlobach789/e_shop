@@ -87,10 +87,16 @@ class FilterAdmin(admin.ModelAdmin):
 @admin.register(Item)
 class ItemAdmin(admin.ModelAdmin):
     """Admin форма для товаров"""
-    list_display = ('name', 'category', 'price', 'old_price', 'weight', 'quantity')
+    list_display = ('name', 'category', 'price', 'old_price',
+                    'weight', 'quantity', 'basket_quantity')
+    readonly_fields = ('basket_quantity',)
     ordering = ('id',)
     search_fields = ('name',)
     form = ItemForm
+
+    @admin.display(description='В корзинах пользователей')
+    def basket_quantity(self, obj: Item) -> int:
+        return obj.basket_quantity
 
     def get_inlines(self, request, obj):
         inlines = [ItemImageInline]
