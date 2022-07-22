@@ -61,6 +61,7 @@ class Basket(models.Model):
             models.Min(models.F('quantity'), models.F('item__quantity'))
             * models.F('item__price')))['cost']
 
+
 class ItemBasket(models.Model):
     """Модель товара в корзине"""
     basket = models.ForeignKey(Basket, on_delete=models.CASCADE,
@@ -73,39 +74,6 @@ class ItemBasket(models.Model):
         verbose_name = 'Товар в корзине'
         verbose_name_plural = 'Товары в корзинах'
         unique_together = ('basket', 'item')
-
-
-class Import(models.Model):
-    """Модель импорта товаров"""
-    name = models.CharField('Наименование', max_length=256)
-
-    class Meta:
-        verbose_name = 'Импорт'
-        verbose_name_plural = 'Импорты'
-
-    def __str__(self) -> str:
-        return f'{self.name}'
-
-    @property
-    def quantity(self) -> int:
-        return self.importitem_set.aggregate(quantity=models.Sum('quantity'))['quantity']
-
-
-class ImportItem(models.Model):
-    """Модель элемента импорта"""
-    import_obj = models.ForeignKey(Import, on_delete=models.CASCADE,
-                                   verbose_name='Импорт')
-    item = models.ForeignKey(Item, on_delete=models.CASCADE,
-                             verbose_name='Товар')
-    quantity = models.IntegerField('Количество')
-
-    class Meta:
-        unique_together = ('import_obj', 'item')
-
-    def save(self, *args, **kwargs):
-        self.item.quantity += self.quantity
-        self.item.save()
-        return super().save(*args, **kwargs)
 
 
 @receiver(post_save, sender=settings.AUTH_USER_MODEL)
