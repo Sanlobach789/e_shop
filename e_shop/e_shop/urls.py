@@ -24,12 +24,14 @@ from drf_yasg import openapi
 
 from authapp.views_api import ActivateUserViewSet
 from mainapp.views_api import CategoryModelViewSet, ItemModelViewSet
+from basketapp.views_api import BasketModelViewSet
 from e_shop.settings import MEDIA_URL, MEDIA_ROOT
 
 
 router = DefaultRouter()
 router.register('categories', CategoryModelViewSet)
 router.register('categories/(?P<category_id>[0-9]+)/items', ItemModelViewSet)
+router.register('basket', BasketModelViewSet, basename='basket')
 
 schema_view = get_schema_view(
     openapi.Info(

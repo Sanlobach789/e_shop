@@ -1,9 +1,11 @@
 from decimal import Decimal
+from typing import Union, List, Tuple
 
-from django.db import models
+from django.db import models, transaction
 from django.conf import settings
 from django.dispatch import receiver
 from django.db.models.signals import post_save
+from django.shortcuts import get_object_or_404
 
 from mainapp.models import Item
 
@@ -20,10 +22,13 @@ class Basket(models.Model):
     def __str__(self) -> str:
         return f'Корзина {self.user.email}'
 
-    def add_item(self, item: Item, quantity: int = 1) -> 'ItemBasket':
+    def add_item(self, item: Union[Item, int], quantity: int = 1) -> 'ItemBasket':
         """Добавить товар в корзину"""
         if quantity < 0:
             raise ValueError('Нельзя добавить отрицательное колчество товаров')
+        if isinstance(item, int):
+            item = get_object_or_404(Item, pk=item)
+
         itembasket, _ = self.itembasket_set.get_or_create(item=item)
         itembasket.quantity += quantity
         itembasket.save()
@@ -33,6 +38,8 @@ class Basket(models.Model):
         """Убрать товар из корзины"""
         if quantity < 0:
             raise ValueError('Нельзя убрать отрицательное колчество товаров')
+        if isinstance(item, int):
+            item = get_object_or_404(Item, pk=item)
 
         itembasket = self.itembasket_set.get(item=item)
         if remove_all:
@@ -41,6 +48,22 @@ class Basket(models.Model):
             itembasket.quantity -= min(itembasket.quantity, quantity)
 
         itembasket.save()
+
+    def sync(self, items: List[Tuple[Union[Item, int], int]]) -> None:
+        """Синхронизирует корзину"""
+        items_basket = self.itembasket_set.select_related('item').all()
+        with transaction.atomic():
+            for item, quantity in items:
+                item_basket = items_basket.filter(**(
+                    {'item_id': item} if isinstance(item, int) else {'item': item}
+                )).first()
+
+                if not item_basket:
+                    self.add_item(item, quantity)
+                else:
+                    add_quantity = quantity - item_basket.quantity
+                    if add_quantity > 0:
+                        self.add_item(item_basket.item, add_quantity)
 
     def clear(self) -> None:
         """Очищает корзину"""
