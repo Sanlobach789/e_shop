@@ -9,7 +9,7 @@ Pillow==9.1.1
 pytz==2022.1
 drf-yasg==1.20.0
 djoser==2.1.0
-djangorestframework_simplejwt==5.2.0
+djangorestframework_simplejwt
 django-phonenumber-field==6.3.0
 django-phonenumbers==1.0.1
 phonenumbers==8.12.51
