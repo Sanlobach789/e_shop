@@ -22,12 +22,16 @@ from rest_framework.permissions import AllowAny
 from drf_yasg.views import get_schema_view
 from drf_yasg import openapi
 
-from mainapp.views_api import CategoryModelViewSet
+from authapp.views_api import ActivateUserViewSet
+from mainapp.views_api import CategoryModelViewSet, ItemModelViewSet
+from basketapp.views_api import BasketModelViewSet
 from e_shop.settings import MEDIA_URL, MEDIA_ROOT
 
 
 router = DefaultRouter()
 router.register('categories', CategoryModelViewSet)
+router.register('categories/(?P<category_id>[0-9]+)/items', ItemModelViewSet)
+router.register('basket', BasketModelViewSet, basename='basket')
 
 schema_view = get_schema_view(
     openapi.Info(
@@ -42,6 +46,10 @@ schema_view = get_schema_view(
 urlpatterns = [
     path('admin/', admin.site.urls),
     path('api-auth/', include('rest_framework.urls')),
+    re_path(r'^auth/', include('djoser.urls')),
+    re_path(r'^auth/', include('djoser.urls.jwt')),
+    path('auth/users/activation/<uid>/<token>/',
+         ActivateUserViewSet.as_view({'get': 'activation'})),
     path('', include(router.urls)),
     re_path(r'^swagger(?P<format>\.json|\.yaml)$',
             schema_view.without_ui(cache_timeout=0), name='schema-json'),

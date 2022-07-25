@@ -129,7 +129,9 @@ dmypy.json
 .pyre/
 
 .idea
+.vscode
 
 e_shop/e_shop/env.py
 
 e_shop/*/migrations
+e_shop/media/category_images
