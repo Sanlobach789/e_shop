@@ -83,12 +83,7 @@ WSGI_APPLICATION = 'e_shop.wsgi.application'
 # Database
 # https://docs.djangoproject.com/en/3.2/ref/settings/#databases
 
-DATABASES = {
-    'default': {
-        'ENGINE': 'django.db.backends.sqlite3',
-        'NAME': BASE_DIR / 'db.sqlite3',
-    }
-}
+DATABASES = DATABASES
 
 # Password validation
 # https://docs.djangoproject.com/en/3.2/ref/settings/#auth-password-validators
@@ -137,12 +132,12 @@ DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 AUTH_USER_MODEL = 'authapp.User'
 
 # Email settings
-EMAIL_HOST = 'smtp.yandex.ru'
-EMAIL_PORT = 465
+EMAIL_HOST = EMAIL_HOST
+EMAIL_PORT = EMAIL_PORT
 EMAIL_HOST_USER = EMAIL_HOST_USER
 EMAIL_HOST_PASSWORD = EMAIL_HOST_PASSWORD
-EMAIL_USE_SSL = True
-DEFAULT_FROM_EMAIL = EMAIL_HOST_USER + '@yandex.ru'
+EMAIL_USE_SSL = EMAIL_USE_SSL
+DEFAULT_FROM_EMAIL = DEFAULT_FROM_EMAIL
 
 # DRF settings
 REST_FRAMEWORK = {
