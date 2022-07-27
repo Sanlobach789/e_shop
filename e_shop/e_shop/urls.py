@@ -29,9 +29,9 @@ from e_shop.settings import MEDIA_URL, MEDIA_ROOT
 
 
 router = DefaultRouter()
-router.register('categories', CategoryModelViewSet)
-router.register('categories/(?P<category_id>[0-9]+)/items', ItemModelViewSet)
-router.register('basket', BasketModelViewSet, basename='basket')
+router.register('api/categories', CategoryModelViewSet)
+router.register('api/categories/(?P<category_id>[0-9]+)/items', ItemModelViewSet)
+router.register('api/basket', BasketModelViewSet, basename='basket')
 
 schema_view = get_schema_view(
     openapi.Info(
