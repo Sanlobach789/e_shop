@@ -38,6 +38,7 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
+    "corsheaders",
     'django_filters',
     'rest_framework',
     'djoser',
@@ -52,12 +53,15 @@ INSTALLED_APPS = [
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
+    "corsheaders.middleware.CorsMiddleware",
     'django.middleware.common.CommonMiddleware',
     'django.middleware.csrf.CsrfViewMiddleware',
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
 ]
+
+CORS_ALLOW_ALL_ORIGINS = True
 
 ROOT_URLCONF = 'e_shop.urls'
 
@@ -173,18 +177,17 @@ SIMPLE_JWT = {
 }
 
 SWAGGER_SETTINGS = {
-   'SECURITY_DEFINITIONS': {
+    'SECURITY_DEFINITIONS': {
         'Bearer': {
             'type': 'apiKey',
             'name': 'Authorization',
             'in': 'header'
         }
-   }
+    }
 }
 
 # django-phonenumber-field settings
 PHONENUMBER_DEFAULT_REGION = 'RU'
-
 
 # Logging settings
 LOGGING = {
