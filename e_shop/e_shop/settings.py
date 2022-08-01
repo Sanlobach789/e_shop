@@ -173,7 +173,6 @@ DJOSER = {
 SIMPLE_JWT = {
     'ACCESS_TOKEN_LIFETIME': datetime.timedelta(days=60),
     'REFRESH_TOKEN_LIFETIME': datetime.timedelta(days=120),
-    'AUTH_HEADER_TYPES': ('Bearer',),
 }
 
 SWAGGER_SETTINGS = {
@@ -219,3 +218,7 @@ LOGGING = {
         },
     },
 }
+
+
+# Url to page redirect on success activation
+SUCCESS_ACTIVATION_VIEW_URL = '/'
