@@ -69,21 +69,6 @@ class Basket(models.Model):
         """Очищает корзину"""
         self.itembasket_set.all().delete()
 
-    @property
-    def quantity(self) -> int:
-        return self.itembasket_set.aggregate(quantity=models.Sum('quantity'))['quantity']
-
-    @property
-    def store_quantity(self) -> int:
-        return self.itembasket_set.aggregate(quantity=models.Sum(
-            models.Min(models.F('quantity'), models.F('item__quantity'))))['quantity']
-
-    @property
-    def cost(self) -> Decimal:
-        return self.itembasket_set.aggregate(cost=models.Sum(
-            models.Min(models.F('quantity'), models.F('item__quantity'))
-            * models.F('item__price')))['cost']
-
 
 class ItemBasket(models.Model):
     """Модель товара в корзине"""
