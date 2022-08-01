@@ -11,6 +11,7 @@ from .serializers import (
     BasketSerializer, ItemBasketActionSerializer, ManyItemBasketActionSerializer
 )
 
+
 class BasketModelViewSet(viewsets.GenericViewSet):
     basket: Basket
     serializer_class = BasketSerializer
@@ -18,8 +19,9 @@ class BasketModelViewSet(viewsets.GenericViewSet):
     queryset = Basket.objects.none()
 
     def initial(self, request, *args, **kwargs):
-        self.basket = request.user.basket
-        return super().initial(request, *args, **kwargs)
+        if vars(request.user):
+            self.basket = request.user.basket
+        return super(viewsets.GenericViewSet, self).initial(request, *args, **kwargs)
 
     @swagger_auto_schema(responses={
         HTTPStatus.OK.value: 'Ok',
