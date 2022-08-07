@@ -13,7 +13,7 @@ from mainapp.models import Item
 class Basket(models.Model):
     """Модель корзины"""
     user = models.OneToOneField(settings.AUTH_USER_MODEL, on_delete=models.CASCADE,
-                                verbose_name='Пользователь')
+                                verbose_name='Пользователь', null=True, blank=True)
 
     class Meta:
         verbose_name = 'Корзина'

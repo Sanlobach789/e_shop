@@ -3,6 +3,11 @@ from django.db import models
 from mainapp.models import Item
 
 
+class Shop(models.Model):
+    title = models.CharField(max_length=512, verbose_name="Название")
+    address = models.CharField(max_length=700, verbose_name="Адрес")
+
+
 class ImportItem(models.Model):
     """Модель элемента импорта"""
     import_obj = models.ForeignKey('Import', on_delete=models.CASCADE,
