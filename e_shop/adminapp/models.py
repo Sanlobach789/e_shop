@@ -7,6 +7,9 @@ class Shop(models.Model):
     title = models.CharField(max_length=512, verbose_name="Название")
     address = models.CharField(max_length=700, verbose_name="Адрес")
 
+    def __str__(self):
+        return f'{self.title}'
+
 
 class ImportItem(models.Model):
     """Модель элемента импорта"""

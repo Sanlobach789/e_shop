@@ -1,6 +1,6 @@
 from django.contrib import admin
 
-from .models import Import, ImportItem
+from .models import Import, ImportItem, Shop
 
 
 class ImportItemInline(admin.TabularInline):
@@ -32,3 +32,6 @@ class ImportAdmin(admin.ModelAdmin):
 
     def has_delete_permission(self, *args, **kwargs) -> bool:
         return False
+
+
+admin.site.register(Shop)
