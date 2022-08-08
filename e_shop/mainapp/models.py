@@ -153,12 +153,12 @@ class Item(models.Model):
     name = models.CharField('Название', max_length=256)
     category = models.ForeignKey(Category, on_delete=models.CASCADE, verbose_name='Категория')
     price = models.DecimalField('Цена', max_digits=10, decimal_places=2)
-    old_price = models.DecimalField('Старая цена', max_digits=10, decimal_places=2, null=True, blank=False)
-    description = models.CharField('Описание', max_length=256)
-    width = models.PositiveIntegerField('Ширина')
-    height = models.PositiveIntegerField('Высота')
-    depth = models.PositiveIntegerField('Толщина')
-    weight = models.PositiveIntegerField('Вес')
+    old_price = models.DecimalField('Старая цена', max_digits=10, decimal_places=2, null=True, blank=True)
+    description = models.CharField('Описание', max_length=256, null=True, blank=True)
+    width = models.PositiveIntegerField('Ширина', null=True, blank=True)
+    height = models.PositiveIntegerField('Высота', null=True, blank=True)
+    depth = models.PositiveIntegerField('Глубина', null=True, blank=True)
+    weight = models.PositiveIntegerField('Вес', null=True, blank=True)
     quantity = models.PositiveIntegerField('Количество', default=0, blank=True)
 
     class Meta:
