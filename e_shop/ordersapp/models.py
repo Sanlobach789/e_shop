@@ -1,19 +1,25 @@
 from uuid import uuid4
 
 from django.db import models
+from django.core.exceptions import ValidationError
+from django.core.validators import RegexValidator
 from phonenumber_field.modelfields import PhoneNumberField
 
 from adminapp.models import Shop
 from authapp.models import User
-from basketapp.models import Basket
+from mainapp.models import Item
+
+
+inn_validator = RegexValidator(r"[0-9]{12}", message="Некорректный ИНН.")
+kpp_validator = RegexValidator(r"[0-9]{9}", message="Некорректный КПП.")
 
 
 class Organization(models.Model):
     id = models.UUIDField(primary_key=True, editable=False, default=uuid4)
     user = models.ForeignKey(User, on_delete=models.SET_NULL, null=True, blank=True)
     title = models.CharField(max_length=256, verbose_name="Название")
-    inn = models.CharField(max_length=50, verbose_name="ИНН")
-    kpp = models.CharField(max_length=50, verbose_name="КПП")
+    inn = models.CharField(max_length=50, verbose_name="ИНН", validators=[inn_validator])
+    kpp = models.CharField(max_length=50, verbose_name="КПП", validators=[kpp_validator])
 
     def __str__(self):
         return f'{self.title}, ИНН {self.inn}, КПП {self.kpp}'
@@ -81,10 +87,86 @@ class Order(models.Model):
     updated_at = models.DateTimeField(auto_now=True, verbose_name="Дата обновления")
     finished_at = models.DateTimeField(null=True, blank=True, verbose_name="Дата завершения")
     status = models.CharField(max_length=3, choices=STATUS_CHOICES, default=CREATED, verbose_name="Статус")
-    basket = models.ForeignKey(Basket, on_delete=models.SET_NULL, null=True, blank=True, verbose_name="Корзина")
-    customer_data = models.ForeignKey(CustomerData, on_delete=models.SET_NULL, null=True, verbose_name="Контактное лицо")
+    customer_data = models.ForeignKey(CustomerData, on_delete=models.SET_NULL, null=True, blank=True, verbose_name="Контактное лицо")
     comment = models.TextField(null=True, blank=True, verbose_name="Комментарий к заказу")
     organization = models.ForeignKey(Organization, on_delete=models.SET_NULL, null=True, blank=True, verbose_name="Организация")
     pickup_shop = models.ForeignKey(Shop, on_delete=models.SET_NULL, null=True, blank=True, verbose_name="Самовывоз")
     payment_type = models.CharField(max_length=3, choices=PAYMENT_CHOICES, default=UPON_RECEIPT, verbose_name="Способ оплаты")
     delivery = models.ForeignKey(Delivery, on_delete=models.SET_NULL, null=True, blank=True, verbose_name="Доставка")
+
+    __db_order: "Order" = None
+    @property
+    def db_order(self):
+        if not self.__db_order:
+            self.__db_order = Order.objects.get(pk=self.pk)
+        return self.__db_order
+
+    def save(self, *args, **kwargs) -> None:
+        if not self._state.adding:
+            if self.delivery and self.pickup_shop:
+                if self.db_order.delivery:
+                    self.delivery = None
+                elif self.db_order.pickup_shop:
+                    self.pickup_shop = None
+        return super().save(*args, **kwargs)
+
+    def clean(self) -> None:
+        if (
+            self._state.adding and self.delivery and self.pickup_shop
+            or not self.delivery and not self.pickup_shop
+            ):
+            raise ValidationError("Выберите один способ получения.")
+        return super().clean()
+
+
+class OrderItem(models.Model):
+    order = models.ForeignKey(Order, on_delete=models.CASCADE, verbose_name="Заказ")
+    item = models.ForeignKey(Item, on_delete=models.CASCADE, verbose_name="Товар")
+    quantity = models.PositiveSmallIntegerField("Количество")
+    price = models.DecimalField('Цена', max_digits=10, decimal_places=2, blank=True)
+
+    __db_orderitem: "OrderItem" = None
+    @property
+    def db_orderitem(self):
+        if not self.__db_orderitem:
+            self.__db_orderitem = OrderItem.objects.get(pk=self.pk)
+        return self.__db_orderitem
+
+    def save(self, *args, **kwargs) -> None:
+        if self.pk is None:
+            self.change_quantity(self.quantity)
+
+            # Автоматическая установка цены товара в заказе, если пользователь не указал.
+            if self.price is None:
+                self.price = self.item.price
+        else:
+            db_orderitem = self.db_orderitem
+            if db_orderitem.quantity != self.quantity:
+                self.change_quantity(self.quantity - db_orderitem.quantity)
+
+        return super().save(*args, **kwargs)
+
+    def delete(self, *args, **kwargs):
+        self.change_quantity(-self.db_orderitem.quantity)
+        return super().delete(*args, **kwargs)
+
+    def clean(self) -> None:
+        if self.pk is not None:
+            db_orderitem = self.db_orderitem
+            if db_orderitem.item != self.item:
+                raise ValidationError("Нельза менять товар в заказе.")
+            if db_orderitem.quantity != self.quantity and self.quantity > self.item.quantity:
+                raise ValidationError((f"Нет такого количества товара. В заказе {db_orderitem.quantity} шт. "
+                                       f"Ещё доступно: {self.item.quantity} шт."))
+        else:
+            if self.quantity > self.item.quantity:
+                raise ValidationError((f"Нет такого количества товара. Доступно: {self.item.quantity} шт."))
+        
+        return super().clean()
+
+    def change_quantity(self, diff: int):
+        """
+        Уменьшает количество доступного товара в магазине.
+        """
+        self.item.quantity -= diff
+        self.item.save()
