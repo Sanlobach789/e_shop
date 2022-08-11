@@ -102,6 +102,8 @@ class Order(models.Model):
         return self.__db_order
 
     def save(self, *args, **kwargs) -> None:
+        self.full_clean()
+
         if not self._state.adding:
             if self.delivery and self.pickup_shop:
                 if self.db_order.delivery:
@@ -133,6 +135,8 @@ class OrderItem(models.Model):
         return self.__db_orderitem
 
     def save(self, *args, **kwargs) -> None:
+        self.full_clean()
+
         if self.pk is None:
             self.change_quantity(self.quantity)
 
