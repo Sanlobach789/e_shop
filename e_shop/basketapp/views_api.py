@@ -1,9 +1,10 @@
 from http import HTTPStatus
 
+from django.shortcuts import get_object_or_404
 from rest_framework import viewsets
 from rest_framework.decorators import action
 from rest_framework.response import Response
-from rest_framework.permissions import IsAuthenticated
+from rest_framework.permissions import AllowAny
 from drf_yasg.utils import swagger_auto_schema
 
 from .models import Basket
@@ -15,12 +16,17 @@ from .serializers import (
 class BasketModelViewSet(viewsets.GenericViewSet):
     basket: Basket
     serializer_class = BasketSerializer
-    permission_classes = (IsAuthenticated,)
+    permission_classes = (AllowAny,)
     queryset = Basket.objects.none()
 
     def initial(self, request, *args, **kwargs):
         if vars(request.user):
             self.basket = request.user.basket
+        else:
+            try:
+                self.basket = get_object_or_404(Basket, pk=request.headers.get('Basket'))
+            except:
+                self.basket = Basket.objects.create()
         return super(viewsets.GenericViewSet, self).initial(request, *args, **kwargs)
 
     @swagger_auto_schema(responses={
@@ -43,7 +49,7 @@ class BasketModelViewSet(viewsets.GenericViewSet):
         serializer.is_valid(raise_exception=True)
         data = serializer.validated_data
         self.basket.add_item(item=data['item_id'], quantity=data['quantity'])
-        return Response(status=HTTPStatus.OK.value)
+        return Response(status=HTTPStatus.OK.value, data={'id': self.basket.pk})
 
     @action(methods=['POST'], detail=False, serializer_class=ItemBasketActionSerializer)
     @swagger_auto_schema(responses={
@@ -58,7 +64,7 @@ class BasketModelViewSet(viewsets.GenericViewSet):
         serializer.is_valid(raise_exception=True)
         data = serializer.validated_data
         self.basket.remove_item(item=data['item_id'], quantity=data['quantity'])
-        return Response(status=HTTPStatus.OK.value)
+        return Response(status=HTTPStatus.OK.value, data={'id': self.basket.pk})
 
     @action(methods=['POST'], detail=False)
     @swagger_auto_schema(responses={
@@ -68,7 +74,7 @@ class BasketModelViewSet(viewsets.GenericViewSet):
     def clear(self, request):
         """Очищает корзину"""
         self.basket.clear()
-        return Response(status=HTTPStatus.OK.value)
+        return Response(status=HTTPStatus.OK.value, data={'id': self.basket.pk})
 
     @action(methods=['POST'], detail=False, serializer_class=ManyItemBasketActionSerializer)
     @swagger_auto_schema(responses={
@@ -83,4 +89,4 @@ class BasketModelViewSet(viewsets.GenericViewSet):
         items.is_valid(raise_exception=True)
         self.basket.sync([(el['item_id'], el['quantity'])
                           for el in items.validated_data['items']])
-        return Response(status=HTTPStatus.OK.value)
+        return Response(status=HTTPStatus.OK.value, data={'id': self.basket.pk})

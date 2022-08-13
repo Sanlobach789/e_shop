@@ -23,7 +23,7 @@ class BasketSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Basket
-        fields = ('items',)
+        fields = ('id', 'items')
 
 
 class ItemBasketActionSerializer(serializers.Serializer):

@@ -20,7 +20,7 @@ class Basket(models.Model):
         verbose_name_plural = 'Корзины'
 
     def __str__(self) -> str:
-        return f'Корзина {self.user.email}'
+        return f'Корзина {self.user}'
 
     def add_item(self, item: Union[Item, int], quantity: int = 1) -> 'ItemBasket':
         """Добавить товар в корзину"""
