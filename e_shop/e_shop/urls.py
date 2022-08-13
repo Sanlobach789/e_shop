@@ -25,7 +25,7 @@ from drf_yasg import openapi
 from authapp.views_api import ActivateUserViewSet
 from mainapp.views_api import CategoryModelViewSet, ItemModelViewSet
 from basketapp.views_api import BasketModelViewSet
-from ordersapp.views_api import OrderModelViewSet
+from ordersapp.views_api import OrderModelViewSet, OrganizationModelViewSet
 from e_shop.settings import MEDIA_URL, MEDIA_ROOT
 
 
@@ -33,6 +33,7 @@ router = DefaultRouter()
 router.register('api/categories', CategoryModelViewSet)
 router.register('api/basket', BasketModelViewSet, basename='basket')
 router.register('api/order', OrderModelViewSet, basename='order')
+router.register('api/organization', OrganizationModelViewSet, basename='organization')
 
 schema_view = get_schema_view(
     openapi.Info(

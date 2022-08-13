@@ -8,7 +8,7 @@ from drf_yasg.utils import swagger_auto_schema
 
 from .models import Order
 from .serializers import (
-    CreateOrderSerializer, OrderSerializer
+    CreateOrderSerializer, OrderSerializer, OrganizationSerializer
 )
 
 
@@ -44,3 +44,16 @@ class OrderModelViewSet(viewsets.ReadOnlyModelViewSet,
         self.perform_create(serializer)
         response_serializer = OrderSerializer(serializer.instance)
         return Response(response_serializer.data, status=status.HTTP_201_CREATED)
+
+
+class OrganizationModelViewSet(viewsets.GenericViewSet,
+                               mixins.CreateModelMixin):
+    queryset = Order.objects.all()
+    serializer_class = OrganizationSerializer
+
+    def create(self, request, *args, **kwargs):
+        serializer = self.get_serializer(data=request.data, context={'user': request.user})
+        serializer.is_valid(raise_exception=True)
+        self.perform_create(serializer)
+        headers = self.get_success_headers(serializer.data)
+        return Response(serializer.data, status=status.HTTP_201_CREATED, headers=headers)
