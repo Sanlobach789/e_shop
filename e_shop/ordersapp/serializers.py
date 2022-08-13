@@ -1,6 +1,8 @@
 from rest_framework import serializers
 from django.db import transaction
+from django.shortcuts import get_object_or_404
 
+from adminapp.serializers import ShopSerializer
 from basketapp.models import Basket
 from ordersapp.models import *
 
@@ -16,7 +18,7 @@ class CustomerDataSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = CustomerData
-        fields = '__all__'
+        fields = ('name', 'phone_number', 'email', 'user')
 
 
 class DeliverySerializer(serializers.ModelSerializer):
@@ -33,39 +35,47 @@ class OrderItemSerializer(serializers.ModelSerializer):
 
 
 class CreateOrderSerializer(serializers.ModelSerializer):
-    items = OrderItemSerializer(many=True, required=False)
+    customer_data = CustomerDataSerializer(required=True)
 
     class Meta:
         model = Order
-        fields = ('customer_data', 'comment', 'organization', 'pickup_shop', 'delivery', 'payment_type', 'items')
+        fields = ('customer_data', 'comment', 'organization', 'pickup_shop', 'delivery', 'payment_type')
+
+    def create(self, validated_data):
+        # Создание `customer_data`, инчае ошибка выскакивает, что нельзя создать вложенный объект.
+        validated_data['customer_data']['user'] = self.context.get('request').user.pk
+        customer_data_serializer = CustomerDataSerializer(data=validated_data.get('customer_data'))
+        customer_data_serializer.is_valid(raise_exception=True)
+        customer_data = customer_data_serializer.save()
+        validated_data['customer_data'] = customer_data
+        return super().create(validated_data)
 
     def save(self, **kwargs):
+        # Получение пользователя, который создает заказ
         user = self.context.get('request').user
 
-        orderitems_data = self.validated_data.get('items')
-        if isinstance(orderitems_data, list):
-            self.validated_data.pop('items')
-
+        # Если пользователь автирозован, то ...
         if vars(user):
+            # ... просто берем его корзину
             basket: Basket = user.basket
-            with transaction.atomic():
-                order = super().save(**kwargs)
-
-                basketitems = basket.itembasket_set.select_related('item')
-                if basketitems.count() == 0:
-                    raise ValidationError('Нет товаров в корзине')
-
-                for el in basketitems:
-                    OrderItem.objects.create(order=order, item=el.item, quantity=el.quantity)
-                basket.clear()
         else:
-            with transaction.atomic():
-                order = super().save(**kwargs)
-                if orderitems_data:
-                    for el in orderitems_data:
-                        OrderItem.objects.create(order=order, item=el.get('item'), quantity=el.get('quantity'))
-                else:
-                    raise ValidationError('Нет товаров в корзине')
+            # ... пытаемся получить корзину
+            basket: Basket = get_object_or_404(Basket, pk=self.context.get('request').headers.get('Basket'))
+
+        with transaction.atomic():
+            order = super().save(**kwargs)
+
+            basketitems = basket.itembasket_set.select_related('item')
+            # Проверяем, что корзина не пустая
+            if basketitems.count() == 0:
+                raise ValidationError('Нет товаров в корзине')
+
+            # Переносим товары из корзины в заказ
+            for el in basketitems:
+                OrderItem.objects.create(order=order, item=el.item, quantity=el.quantity)
+            # Очищаем корзину
+            basket.clear()
+
         return order
 
 
@@ -73,8 +83,7 @@ class OrderSerializer(serializers.ModelSerializer):
     items = OrderItemSerializer(many=True, required=False, source='orderitem_set')
     customer_data = CustomerDataSerializer()
     organization = OrganizationSerializer(required=False)
-    # TODO
-    # pickup_shop = 
+    pickup_shop = ShopSerializer(required=False)
     delivery = DeliverySerializer(required=False)
 
     class Meta:
