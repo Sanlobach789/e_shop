@@ -36,6 +36,6 @@ class ItemModelViewSet(viewsets.ReadOnlyModelViewSet):
             items = category.item_set
         except Http404 as e:
             category = None
-            items = Item.objects.none()
+            items = Item.objects
 
         return items.all()

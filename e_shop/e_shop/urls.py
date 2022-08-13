@@ -31,7 +31,6 @@ from e_shop.settings import MEDIA_URL, MEDIA_ROOT
 
 router = DefaultRouter()
 router.register('api/categories', CategoryModelViewSet)
-router.register('api/categories/(?P<category_id>[0-9]+)/items', ItemModelViewSet)
 router.register('api/basket', BasketModelViewSet, basename='basket')
 router.register('api/order', OrderModelViewSet, basename='order')
 
@@ -46,6 +45,9 @@ schema_view = get_schema_view(
 )
 
 urlpatterns = [
+    re_path(r'api/categories/(?P<category_id>[0-9]+)/items', ItemModelViewSet.as_view({'get': 'list'})),
+    path('api/items/<int:pk>', ItemModelViewSet.as_view({'get': 'retrieve'})),
+
     path('admin/', admin.site.urls),
     path('api-auth/', include('rest_framework.urls')),
     re_path(r'^auth/', include('djoser.urls')),
