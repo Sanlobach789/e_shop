@@ -6,9 +6,9 @@ from rest_framework.response import Response
 from rest_framework.permissions import AllowAny, IsAuthenticated
 from drf_yasg.utils import swagger_auto_schema
 
-from .models import Order
+from .models import Delivery, Order, Organization
 from .serializers import (
-    CreateOrderSerializer, OrderSerializer, OrganizationSerializer
+    CreateOrderSerializer, DeliverySerializer, OrderSerializer, OrganizationSerializer
 )
 
 
@@ -48,7 +48,7 @@ class OrderModelViewSet(viewsets.ReadOnlyModelViewSet,
 
 class OrganizationModelViewSet(viewsets.GenericViewSet,
                                mixins.CreateModelMixin):
-    queryset = Order.objects.all()
+    queryset = Organization.objects.all()
     serializer_class = OrganizationSerializer
 
     def create(self, request, *args, **kwargs):
@@ -57,3 +57,9 @@ class OrganizationModelViewSet(viewsets.GenericViewSet,
         self.perform_create(serializer)
         headers = self.get_success_headers(serializer.data)
         return Response(serializer.data, status=status.HTTP_201_CREATED, headers=headers)
+
+
+class DeliveryModelViewSet(viewsets.GenericViewSet,
+                           mixins.CreateModelMixin):
+    queryset = Delivery.objects.all()
+    serializer_class = DeliverySerializer

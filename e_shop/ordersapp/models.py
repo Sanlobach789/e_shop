@@ -45,7 +45,6 @@ class Delivery(models.Model):
         (COURIER, "У курьера"),
         (DELIVERED, "Доставлено"),
     ]
-    customer = models.ForeignKey(CustomerData, on_delete=models.SET_NULL, null=True, blank=True, verbose_name="Контактное лицо")
     address = models.TextField(verbose_name="Адрес доставки")
     created_at = models.DateTimeField(auto_now_add=True, verbose_name="Дата создания")
     updated_at = models.DateTimeField(auto_now=True, verbose_name="Дата обновления")

@@ -34,4 +34,4 @@ class CustomerDataAdmin(admin.ModelAdmin):
 
 @admin.register(Delivery)
 class DeliveryAdmin(admin.ModelAdmin):
-    list_display = ('customer', 'address', 'created_at', 'updated_at', 'finished_at', 'status')
+    list_display = ('address', 'created_at', 'updated_at', 'finished_at', 'status')
