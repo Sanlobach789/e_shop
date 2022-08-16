@@ -59,7 +59,6 @@ class OrganizationModelViewSet(viewsets.GenericViewSet,
         return Response(serializer.data, status=status.HTTP_201_CREATED, headers=headers)
 
 
-class DeliveryModelViewSet(viewsets.GenericViewSet,
-                           mixins.CreateModelMixin):
+class DeliveryModelViewSet(viewsets.ModelViewSet):
     queryset = Delivery.objects.all()
     serializer_class = DeliverySerializer
