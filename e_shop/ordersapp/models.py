@@ -21,16 +21,24 @@ class Organization(models.Model):
     inn = models.CharField(max_length=50, verbose_name="ИНН", validators=[inn_validator])
     kpp = models.CharField(max_length=50, verbose_name="КПП", validators=[kpp_validator])
 
+    class Meta:
+        verbose_name = 'Организация'
+        verbose_name_plural = 'Организации'
+
     def __str__(self):
         return f'{self.title}, ИНН {self.inn}, КПП {self.kpp}'
 
 
 class CustomerData(models.Model):
     id = models.UUIDField(primary_key=True, editable=False, default=uuid4)
-    user = models.ForeignKey(User, on_delete=models.SET_NULL, null=True, blank=True)
+    user = models.ForeignKey(User, on_delete=models.SET_NULL, null=True, blank=True,verbose_name="Пользователь")
     name = models.CharField(max_length=128, verbose_name="Имя")
     phone_number = PhoneNumberField(null=False, blank=True, verbose_name="Номер телефона")
     email = models.EmailField()
+
+    class Meta:
+        verbose_name = 'Данные заказчика'
+        verbose_name_plural = 'Данные заказчиков'
 
     def __str__(self):
         return f'{self.name}, {self.phone_number}, {self.email}'
@@ -51,6 +59,10 @@ class Delivery(models.Model):
     finished_at = models.DateTimeField(null=True, blank=True, verbose_name="Дата завершения")
     status = models.CharField(max_length=2, choices=STATUS_CHOICES, default=WAITING, verbose_name="Статус доставки")
     comment = models.TextField(null=True, blank=True, verbose_name="Комментарий")
+
+    class Meta:
+        verbose_name = 'Доставка'
+        verbose_name_plural = 'Доставки'
 
     def __str__(self):
         return f'{self.address} - {self.get_status_display()}'
@@ -101,6 +113,10 @@ class Order(models.Model):
         if not self.__db_order:
             self.__db_order = Order.objects.get(pk=self.pk)
         return self.__db_order
+
+    class Meta:
+        verbose_name = 'Заказ'
+        verbose_name_plural = 'Заказы'
 
     def save(self, *args, **kwargs) -> None:
         self.full_clean()
@@ -158,6 +174,10 @@ class OrderItem(models.Model):
         if not self.__db_orderitem:
             self.__db_orderitem = OrderItem.objects.get(pk=self.pk)
         return self.__db_orderitem
+
+    class Meta:
+        verbose_name = 'Товар'
+        verbose_name_plural = 'Товары'
 
     def save(self, *args, **kwargs) -> None:
         self.full_clean()
