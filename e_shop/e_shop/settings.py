@@ -162,6 +162,7 @@ REST_FRAMEWORK = {
     'DEFAULT_AUTHENTICATION_CLASSES': (
         'rest_framework_simplejwt.authentication.JWTAuthentication',
     ),
+    'EXCEPTION_HANDLER': 'e_shop.utils.custom_exception_handler',
 }
 
 DJOSER = {
