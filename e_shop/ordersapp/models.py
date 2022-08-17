@@ -64,6 +64,7 @@ class Order(models.Model):
     PAID = "PAY"
     DELIVERY = "DEL"
     FINISHED = "FIN"
+    CANCEL = "CAN"
     STATUS_CHOICES = [
         (CREATED, "Создан"),
         (IN_PROGRESS, "Находится в обработке"),
@@ -72,6 +73,7 @@ class Order(models.Model):
         (WAITING_FOR_PICKUP, "Готов к выдаче"),
         (DELIVERY, "В доставке"),
         (FINISHED, "Завершен"),
+        (CANCEL, "Отменен"),
     ]
     UPON_RECEIPT = "UR"
     TRANSFER = "TR"
@@ -121,8 +123,9 @@ class Order(models.Model):
         # Статусы заказов
         if self.db_order.status == self.FINISHED:
             raise ValidationError("Заказ уже выдан.")
-        # TODO: cancel order
-        # elif self.db_order == self.
+        elif self.db_order.status == self.CANCEL:
+            raise ValidationError("Заказ отменен.")
+
         return super().clean()
 
     def finish(self):
@@ -130,6 +133,13 @@ class Order(models.Model):
         Подтверждает получение заказа.
         """
         self.status = self.FINISHED
+        self.save()
+
+    def cancel(self):
+        """
+        Отменяет заказ.
+        """
+        self.status = self.CANCEL
         self.save()
 
 

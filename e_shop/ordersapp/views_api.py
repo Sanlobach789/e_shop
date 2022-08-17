@@ -50,13 +50,24 @@ class OrderModelViewSet(viewsets.ReadOnlyModelViewSet,
 
     @swagger_auto_schema(responses={
         HTTPStatus.OK.value: StatusOrderSerializer,
-        HTTPStatus.BAD_REQUEST: 'Bad Request',
-        HTTPStatus.NOT_FOUND: 'Not Found',
-    }, serializer_class={})
+        HTTPStatus.BAD_REQUEST.value: 'Bad Request',
+        HTTPStatus.NOT_FOUND.value: 'Not Found',
+    })
     @action(methods=['POST'], detail=True, serializer_class=ActionStatusOrderSerializer)
     def finish(self, request, pk):
         order = get_object_or_404(Order, pk=pk)
         order.finish()
+        return Response(StatusOrderSerializer(order).data)
+
+    @swagger_auto_schema(responses={
+        HTTPStatus.OK.value: StatusOrderSerializer,
+        HTTPStatus.BAD_REQUEST.value: 'Bad Request',
+        HTTPStatus.NOT_FOUND.value: 'Not Found',
+    })
+    @action(methods=['POST'], detail=True, serializer_class=ActionStatusOrderSerializer)
+    def cancel(self, request, pk):
+        order = get_object_or_404(Order, pk=pk)
+        order.cancel()
         return Response(StatusOrderSerializer(order).data)
 
 
