@@ -121,6 +121,9 @@ class Order(models.Model):
             raise ValidationError("Выберите один способ получения.")
 
         # Статусы заказов
+        if self.status == self.FINISHED and self.db_order.status != self.CREATED:
+            raise ValidationError("Можно отменить только созданный заказ.")
+
         if self.db_order.status == self.FINISHED:
             raise ValidationError("Заказ уже выдан.")
         elif self.db_order.status == self.CANCEL:
