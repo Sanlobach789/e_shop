@@ -117,7 +117,20 @@ class Order(models.Model):
             or not self.delivery and not self.pickup_shop
             ):
             raise ValidationError("Выберите один способ получения.")
+
+        # Статусы заказов
+        if self.db_order.status == self.FINISHED:
+            raise ValidationError("Заказ уже выдан.")
+        # TODO: cancel order
+        # elif self.db_order == self.
         return super().clean()
+
+    def finish(self):
+        """
+        Подтверждает получение заказа.
+        """
+        self.status = self.FINISHED
+        self.save()
 
 
 class OrderItem(models.Model):

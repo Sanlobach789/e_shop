@@ -3,12 +3,15 @@ from http import HTTPStatus
 from rest_framework import status
 from rest_framework import viewsets, mixins
 from rest_framework.response import Response
+from rest_framework.decorators import action
 from rest_framework.permissions import AllowAny, IsAuthenticated
+from django.shortcuts import get_object_or_404
 from drf_yasg.utils import swagger_auto_schema
 
 from .models import Delivery, Order, Organization
 from .serializers import (
-    CreateOrderSerializer, DeliverySerializer, OrderSerializer, OrganizationSerializer
+    CreateOrderSerializer, DeliverySerializer, OrderSerializer, OrganizationSerializer,
+    ActionStatusOrderSerializer, StatusOrderSerializer
 )
 
 
@@ -44,6 +47,17 @@ class OrderModelViewSet(viewsets.ReadOnlyModelViewSet,
         self.perform_create(serializer)
         response_serializer = OrderSerializer(serializer.instance)
         return Response(response_serializer.data, status=status.HTTP_201_CREATED)
+
+    @swagger_auto_schema(responses={
+        HTTPStatus.OK.value: StatusOrderSerializer,
+        HTTPStatus.BAD_REQUEST: 'Bad Request',
+        HTTPStatus.NOT_FOUND: 'Not Found',
+    }, serializer_class={})
+    @action(methods=['POST'], detail=True, serializer_class=ActionStatusOrderSerializer)
+    def finish(self, request, pk):
+        order = get_object_or_404(Order, pk=pk)
+        order.finish()
+        return Response(StatusOrderSerializer(order).data)
 
 
 class OrganizationModelViewSet(viewsets.GenericViewSet,

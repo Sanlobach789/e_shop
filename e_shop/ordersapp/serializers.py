@@ -93,3 +93,14 @@ class OrderSerializer(serializers.ModelSerializer):
     class Meta:
         model = Order
         fields = ('customer_data', 'comment', 'organization', 'pickup_shop', 'delivery', 'payment_type', 'items')
+
+
+class ActionStatusOrderSerializer(serializers.Serializer):
+    """"Сериализатор изменения статуса заказа"""
+
+
+class StatusOrderSerializer(serializers.ModelSerializer):
+    """"Сериализатор статуса заказа"""
+    class Meta:
+        model = Order
+        fields = ('pk', 'status')
