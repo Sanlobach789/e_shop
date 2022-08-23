@@ -20,11 +20,12 @@ class BasketModelViewSet(viewsets.GenericViewSet):
     queryset = Basket.objects.none()
 
     def initial(self, request, *args, **kwargs):
+        basket_queryset = Basket.objects.prefetch_related('itembasket_set__item__itemimage_set')
         if vars(request.user):
-            self.basket = request.user.basket
+            self.basket = get_object_or_404(basket_queryset, user_id=request.user.pk)
         else:
             try:
-                self.basket = get_object_or_404(Basket, pk=request.headers.get('Basket'))
+                self.basket = get_object_or_404(basket_queryset, pk=request.headers.get('Basket'))
             except:
                 self.basket = Basket.objects.create()
         return super(viewsets.GenericViewSet, self).initial(request, *args, **kwargs)
