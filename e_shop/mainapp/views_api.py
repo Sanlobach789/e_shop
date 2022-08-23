@@ -1,5 +1,5 @@
 from django.http import Http404
-from rest_framework import viewsets
+from rest_framework import viewsets, filters, generics
 from drf_yasg.utils import swagger_auto_schema
 from django.shortcuts import get_object_or_404
 
@@ -39,3 +39,10 @@ class ItemModelViewSet(viewsets.ReadOnlyModelViewSet):
             items = Item.objects
 
         return items.all()
+
+
+class SearchItemModelViewSet(generics.ListAPIView):
+    queryset = Item.objects.all()
+    serializer_class = ItemShortSerializer
+    filter_backends = (filters.SearchFilter,)
+    search_fields = ('name',)
