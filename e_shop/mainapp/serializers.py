@@ -29,7 +29,10 @@ class FilterSerializer(serializers.ModelSerializer):
 
     @swagger_serializer_method(FilterValueSerializer(many=True))
     def get_values(self, obj: CategoryFilter):
-        values = CategoryFilterValue.objects.filter(category=obj.category, filter=obj.filter)
+        values = filter(
+            lambda x: x.filter_id == obj.filter_id,
+            obj.category.categoryfiltervalue_set.all()
+        )
         return FilterValueSerializer(values, many=True).data
 
 
@@ -60,7 +63,7 @@ class CategorySerializer(serializers.ModelSerializer):
 
     @swagger_serializer_method(FilterSerializer(many=True))
     def get_filters(self, obj: Category):
-        filters = obj.categoryfilter_set.all()
+        filters = obj.categoryfilter_set.select_related('filter').all()
         return FilterSerializer(filters, many=True).data
 
 

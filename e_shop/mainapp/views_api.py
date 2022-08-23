@@ -9,7 +9,7 @@ from .serializers import CategorySerializer, ItemShortSerializer, ItemSerializer
 
 
 class CategoryModelViewSet(viewsets.ReadOnlyModelViewSet):
-    queryset = Category.objects.all()
+    queryset = Category.objects.prefetch_related('categoryfiltervalue_set').all()
     serializer_class = CategorySerializer
 
     @swagger_auto_schema(responses={
@@ -38,4 +38,5 @@ class ItemModelViewSet(viewsets.ReadOnlyModelViewSet):
             category = None
             items = Item.objects
 
+        items = items.prefetch_related('itemimage_set')
         return items.all()
