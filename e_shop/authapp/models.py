@@ -43,7 +43,7 @@ class User(AbstractUser):
     id = models.UUIDField(primary_key=True, editable=False, default=uuid4)
     phone_number = PhoneNumberField(null=False, blank=True)
     username = None
-    email = models.EmailField(_('Email'), unique=True)
+    email = models.EmailField("email", unique=True)
 
     USERNAME_FIELD = 'email'
     REQUIRED_FIELDS = []
