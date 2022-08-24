@@ -49,7 +49,6 @@ INSTALLED_APPS = [
     'basketapp',
     'adminapp',
     'ordersapp',
-    'debug_toolbar',
 ]
 
 MIDDLEWARE = [
@@ -61,7 +60,6 @@ MIDDLEWARE = [
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
-    'debug_toolbar.middleware.DebugToolbarMiddleware',
 ]
 
 CORS_ALLOW_ALL_ORIGINS = True
@@ -225,9 +223,3 @@ LOGGING = {
 
 # Url to page redirect on success activation
 SUCCESS_ACTIVATION_VIEW_URL = '/'
-
-INTERNAL_IPS = [
-    # ...
-    "127.0.0.1",
-    # ...
-]
