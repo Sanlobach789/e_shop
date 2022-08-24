@@ -23,7 +23,7 @@ from drf_yasg.views import get_schema_view
 from drf_yasg import openapi
 
 from authapp.views_api import ActivateUserViewSet
-from mainapp.views_api import CategoryModelViewSet, ItemModelViewSet
+from mainapp.views_api import CategoryModelViewSet, ItemModelViewSet, SearchItemModelViewSet
 from basketapp.views_api import BasketModelViewSet
 from ordersapp.views_api import OrderModelViewSet, OrganizationModelViewSet, DeliveryModelViewSet
 from e_shop.settings import MEDIA_URL, MEDIA_ROOT
@@ -49,6 +49,7 @@ schema_view = get_schema_view(
 urlpatterns = [
     re_path(r'api/categories/(?P<category_id>[0-9]+)/items', ItemModelViewSet.as_view({'get': 'list'})),
     path('api/items/<int:pk>', ItemModelViewSet.as_view({'get': 'retrieve'})),
+    path('api/items', SearchItemModelViewSet.as_view()),
 
     path('admin/', admin.site.urls),
     path('api-auth/', include('rest_framework.urls')),
