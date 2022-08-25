@@ -186,7 +186,8 @@ class ItemImage(models.Model):
 
 class CategoryFilterValue(models.Model):
     """Модель значения фильтра в категории"""
-    category = models.ForeignKey(Category, on_delete=models.CASCADE, verbose_name='Категория')
+    category = models.ForeignKey(Category, on_delete=models.CASCADE,
+                                 null=True, blank=True, verbose_name='Категория')
     filter = models.ForeignKey(Filter, on_delete=models.CASCADE, verbose_name='Фильтр')
     name = models.CharField('Название', max_length=256)
     value = models.SlugField('Значение', db_index=True)

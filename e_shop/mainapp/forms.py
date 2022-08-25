@@ -1,4 +1,5 @@
 from django import forms
+from django.db.models import Q
 
 from mainapp.models import ItemProperty, CategoryFilterValue, Item, Category
 from adminapp.models import Import
@@ -21,8 +22,8 @@ class ItemPropertyForm(forms.ModelForm):
                     CategoryFilterValue.objects
                     .select_related('filter')\
                         .filter(
+                            Q(category=self.instance.item.category) | Q(category=None),
                             filter=self.instance.filter,
-                            category=self.instance.item.category
                         )
                 )
                 # Добавляем дефолтное значение

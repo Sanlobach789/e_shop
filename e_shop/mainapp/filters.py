@@ -46,7 +46,7 @@ class ItemFilter(filters.FilterSet):
                             continue
                         sub_condition |= Q(value__value=value)
                     condition |= Q(value__filter=filter) & sub_condition
-                condition = Q(value__category=category) & condition
+                condition = (Q(value__category=category) | Q(value__category=None)) & condition
                 
                 # Список id товаров, которые удовлетворяют условиям
                 satisfy_item_id_list = map(
