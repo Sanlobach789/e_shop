@@ -34,7 +34,7 @@ class Filter(models.Model):
         return f'{self.name}'
 
     def save(self, *args, **kwargs) -> None:
-        self.key = slugify(self.name, allow_unicode=True)
+        self.key = slugify(self.key, allow_unicode=True)
         return super().save(*args, **kwargs)
 
 
@@ -200,7 +200,7 @@ class CategoryFilterValue(models.Model):
         return f'{self.name}'
 
     def save(self, *args, **kwargs) -> None:
-        self.value = slugify(self.name, allow_unicode=True)
+        self.value = slugify(self.value, allow_unicode=True)
         return super().save(*args, **kwargs)
 
 
