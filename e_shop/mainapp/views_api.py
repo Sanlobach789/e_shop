@@ -2,6 +2,7 @@ from django.http import Http404
 from rest_framework import viewsets, filters, generics
 from drf_yasg.utils import swagger_auto_schema
 from django.shortcuts import get_object_or_404
+from rest_framework.pagination import PageNumberPagination
 
 from .models import Category, Item
 from .filters import ItemFilter
@@ -22,7 +23,8 @@ class CategoryModelViewSet(viewsets.ReadOnlyModelViewSet):
 class ItemModelViewSet(viewsets.ReadOnlyModelViewSet):
     queryset = Item.objects.all()
     filterset_class = ItemFilter
-    
+    pagination_class = PageNumberPagination
+
     def get_serializer_class(self):
         if self.action == 'list':
             return ItemShortSerializer
@@ -33,10 +35,10 @@ class ItemModelViewSet(viewsets.ReadOnlyModelViewSet):
     def get_queryset(self):
         try:
             category = get_object_or_404(Category, pk=self.kwargs.get('category_id'))
-            items = category.item_set
+            items = category.item_set.order_by(self.kwargs.get("sort"))
         except Http404 as e:
             category = None
-            items = Item.objects
+            items = Item.objects.order_by(self.kwargs.get("sort"))
 
         items = items.prefetch_related('itemimage_set')
         return items.all()
