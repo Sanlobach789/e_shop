@@ -35,13 +35,17 @@ class ItemModelViewSet(viewsets.ReadOnlyModelViewSet):
     def get_queryset(self):
         try:
             category = get_object_or_404(Category, pk=self.kwargs.get('category_id'))
-            items = category.item_set.order_by(self.request.query_params.get("sort", None))
+            items = category.item_set
         except Http404 as e:
             category = None
             items = Item.objects
 
         items = items.prefetch_related('itemimage_set')
         return items.all()
+
+    def filter_queryset(self, queryset):
+        queryset = super(ItemModelViewSet, self).filter_queryset(queryset)
+        return queryset.order_by(self.request.query_params.get("sort", None))
 
 
 class SearchItemModelViewSet(generics.ListAPIView):
