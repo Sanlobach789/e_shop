@@ -45,7 +45,10 @@ class ItemModelViewSet(viewsets.ReadOnlyModelViewSet):
 
     def filter_queryset(self, queryset):
         queryset = super(ItemModelViewSet, self).filter_queryset(queryset)
-        return queryset.order_by(self.request.query_params.get("sort", None))
+        if self.request.query_params.get("sort", None):
+            return queryset.order_by(self.request.query_params.get("sort", None))
+        else:
+            return queryset
 
 
 class SearchItemModelViewSet(generics.ListAPIView):
