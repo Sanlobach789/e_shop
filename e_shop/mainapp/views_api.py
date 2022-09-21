@@ -5,7 +5,7 @@ from django.shortcuts import get_object_or_404
 from rest_framework.pagination import PageNumberPagination
 
 from .models import Category, Item
-from .filters import ItemFilter
+from .filters import ItemFilter, CustomPagination
 from .serializers import CategorySerializer, ItemShortSerializer, ItemSerializer
 
 
@@ -23,7 +23,7 @@ class CategoryModelViewSet(viewsets.ReadOnlyModelViewSet):
 class ItemModelViewSet(viewsets.ReadOnlyModelViewSet):
     queryset = Item.objects.all()
     filterset_class = ItemFilter
-    pagination_class = PageNumberPagination
+    pagination_class = CustomPagination
 
     def get_serializer_class(self):
         if self.action == 'list':

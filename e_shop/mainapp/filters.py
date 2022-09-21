@@ -1,5 +1,7 @@
 from django_filters import rest_framework as filters
 from django.db.models import Q, Count
+from rest_framework import pagination
+from rest_framework.response import Response
 
 from .models import Item, ItemProperty
 
@@ -62,3 +64,17 @@ class ItemFilter(filters.FilterSet):
                 queryset = queryset.filter(pk__in=satisfy_item_id_list)
 
         return queryset
+
+
+class CustomPagination(pagination.PageNumberPagination):
+    def get_paginated_response(self, data):
+        return Response({
+            # 'links': {
+            #     'next': self.get_next_link(),
+            #     'previous': self.get_previous_link()
+            # },
+            'page': self.page.number,
+            'per_page': self.page_size,
+            'count': self.page.paginator.count,
+            'results': data
+        })
