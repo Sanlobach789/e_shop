@@ -40,10 +40,11 @@ class OrderItemSerializer(serializers.ModelSerializer):
 
 class CreateOrderSerializer(serializers.ModelSerializer):
     customer_data = CustomerDataSerializer(required=True)
+    basket_id = serializers.CharField(max_length=128, required=False)
 
     class Meta:
         model = Order
-        fields = ('customer_data', 'comment', 'organization', 'pickup_shop', 'delivery', 'payment_type')
+        fields = ('customer_data', 'comment', 'organization', 'pickup_shop', 'delivery', 'payment_type', 'basket_id')
 
     def create(self, validated_data):
         # Создание `customer_data`, инчае ошибка выскакивает, что нельзя создать вложенный объект.
@@ -64,7 +65,8 @@ class CreateOrderSerializer(serializers.ModelSerializer):
             basket: Basket = user.basket
         else:
             # ... пытаемся получить корзину
-            basket: Basket = get_object_or_404(Basket, pk=self.context.get('request').headers.get('Basket'))
+            # basket: Basket = get_object_or_404(Basket, pk=self.context.get('request').headers.get('Basket'))
+            basket: Basket = get_object_or_404(Basket, pk=self.validated_data.get('basket_id'))
 
         with transaction.atomic():
             order = super().save(**kwargs)
