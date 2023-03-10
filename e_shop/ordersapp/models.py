@@ -56,6 +56,7 @@ class Delivery(models.Model):
 
 
 class Order(models.Model):
+    # region choices
     CREATED = "CRE"
     IN_PROGRESS = "INP"
     WAITING_FOR_PICKUP = "WFP"
@@ -82,6 +83,7 @@ class Order(models.Model):
         (TRANSFER, "Переводом"),
         (ONLINE, "Онлайн"),
     ]
+    # endregion
     id = models.UUIDField(primary_key=True, editable=False, default=uuid4)
     created_at = models.DateTimeField(auto_now_add=True, verbose_name="Дата создания")
     updated_at = models.DateTimeField(auto_now=True, verbose_name="Дата обновления")
@@ -102,4 +104,4 @@ class OrderItem(models.Model):
     order = models.ForeignKey(Order, on_delete=models.CASCADE, verbose_name="Заказ")
     item = models.ForeignKey(Item, on_delete=models.CASCADE, verbose_name="Товар")
     quantity = models.PositiveSmallIntegerField("Количество")
-    price = models.DecimalField('Цена', max_digits=10, decimal_places=2, blank=True)
+    price = models.DecimalField('Цена', max_digits=10, decimal_places=2, default=0, blank=True)
