@@ -152,7 +152,7 @@ class Item(models.Model):
     """Модель товара"""
     name = models.CharField('Название', max_length=256)
     category = models.ForeignKey(Category, on_delete=models.CASCADE, verbose_name='Категория')
-    price = models.DecimalField('Цена', max_digits=10, decimal_places=2)
+    price = models.DecimalField('Цена', max_digits=10, default=0, decimal_places=2)
     old_price = models.DecimalField('Старая цена', max_digits=10, decimal_places=2, null=True, blank=True)
     description = models.CharField('Описание', max_length=256, null=True, blank=True)
     width = models.PositiveIntegerField('Ширина', null=True, blank=True)
