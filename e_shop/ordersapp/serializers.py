@@ -40,7 +40,7 @@ class OrderItemSerializer(serializers.ModelSerializer):
 
 class CreateOrderSerializer(serializers.ModelSerializer):
     customer_data = CustomerDataSerializer(required=True)
-    basket_id = serializers.CharField(max_length=128, required=False)
+    basket_id = serializers.UUIDField(required=False)
 
     class Meta:
         model = Order
@@ -53,7 +53,9 @@ class CreateOrderSerializer(serializers.ModelSerializer):
         customer_data_serializer.is_valid(raise_exception=True)
         customer_data = customer_data_serializer.save()
         validated_data['customer_data'] = customer_data
-        return super().create(validated_data)
+        order_data = dict(validated_data)
+        order_data.pop('basket_id')
+        return super().create(order_data)
 
     def save(self, **kwargs):
         # Получение пользователя, который создает заказ
