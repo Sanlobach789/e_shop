@@ -154,20 +154,6 @@ class OrderItem(models.Model):
         self.change_quantity(-self.db_orderitem.quantity)
         return super().delete(*args, **kwargs)
 
-    def clean(self) -> None:
-        if self.pk is not None:
-            db_orderitem = self.db_orderitem
-            if db_orderitem.item != self.item:
-                raise ValidationError("Нельза менять товар в заказе.")
-            if db_orderitem.quantity != self.quantity and self.quantity > self.item.quantity:
-                raise ValidationError((f"Нет такого количества товара. В заказе {db_orderitem.quantity} шт. "
-                                       f"Ещё доступно: {self.item.quantity} шт."))
-        else:
-            if self.quantity > self.item.quantity:
-                raise ValidationError((f"Нет такого количества товара. Доступно: {self.item.quantity} шт."))
-
-        return super().clean()
-
     def change_quantity(self, diff: int):
         """
         Уменьшает количество доступного товара в магазине.
