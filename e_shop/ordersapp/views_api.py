@@ -48,28 +48,6 @@ class OrderModelViewSet(viewsets.ReadOnlyModelViewSet,
         response_serializer = OrderSerializer(serializer.instance)
         return Response(response_serializer.data, status=status.HTTP_201_CREATED)
 
-    @swagger_auto_schema(responses={
-        HTTPStatus.OK.value: StatusOrderSerializer,
-        HTTPStatus.BAD_REQUEST.value: 'Bad Request',
-        HTTPStatus.NOT_FOUND.value: 'Not Found',
-    })
-    @action(methods=['POST'], detail=True, serializer_class=ActionStatusOrderSerializer)
-    def finish(self, request, pk):
-        order = get_object_or_404(Order, pk=pk)
-        order.finish()
-        return Response(StatusOrderSerializer(order).data)
-
-    @swagger_auto_schema(responses={
-        HTTPStatus.OK.value: StatusOrderSerializer,
-        HTTPStatus.BAD_REQUEST.value: 'Bad Request',
-        HTTPStatus.NOT_FOUND.value: 'Not Found',
-    })
-    @action(methods=['POST'], detail=True, serializer_class=ActionStatusOrderSerializer)
-    def cancel(self, request, pk):
-        order = get_object_or_404(Order, pk=pk)
-        order.cancel()
-        return Response(StatusOrderSerializer(order).data)
-
 
 class OrganizationModelViewSet(viewsets.GenericViewSet,
                                mixins.CreateModelMixin):
