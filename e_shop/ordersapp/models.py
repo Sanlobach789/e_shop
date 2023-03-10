@@ -97,66 +97,9 @@ class Order(models.Model):
                                     verbose_name="Способ оплаты")
     delivery = models.ForeignKey(Delivery, on_delete=models.SET_NULL, null=True, blank=True, verbose_name="Доставка")
 
-    __db_order: "Order" = None
-
-    @property
-    def db_order(self):
-        if not self.__db_order:
-            self.__db_order = Order.objects.get(pk=self.pk)
-        return self.__db_order
-
-    def finish(self):
-        """
-        Подтверждает получение заказа.
-        """
-        self.status = self.FINISHED
-        self.save()
-
-    def cancel(self):
-        """
-        Отменяет заказ.
-        """
-        self.status = self.CANCEL
-        self.save()
-
 
 class OrderItem(models.Model):
     order = models.ForeignKey(Order, on_delete=models.CASCADE, verbose_name="Заказ")
     item = models.ForeignKey(Item, on_delete=models.CASCADE, verbose_name="Товар")
     quantity = models.PositiveSmallIntegerField("Количество")
     price = models.DecimalField('Цена', max_digits=10, decimal_places=2, blank=True)
-
-    __db_orderitem: "OrderItem" = None
-
-    @property
-    def db_orderitem(self):
-        if not self.__db_orderitem:
-            self.__db_orderitem = OrderItem.objects.get(pk=self.pk)
-        return self.__db_orderitem
-
-    def save(self, *args, **kwargs) -> None:
-        self.full_clean()
-
-        if self.pk is None:
-            self.change_quantity(self.quantity)
-
-            # Автоматическая установка цены товара в заказе, если пользователь не указал.
-            if self.price is None:
-                self.price = self.item.price
-        else:
-            db_orderitem = self.db_orderitem
-            if db_orderitem.quantity != self.quantity:
-                self.change_quantity(self.quantity - db_orderitem.quantity)
-
-        return super().save(*args, **kwargs)
-
-    def delete(self, *args, **kwargs):
-        self.change_quantity(-self.db_orderitem.quantity)
-        return super().delete(*args, **kwargs)
-
-    def change_quantity(self, diff: int):
-        """
-        Уменьшает количество доступного товара в магазине.
-        """
-        self.item.quantity -= diff
-        self.item.save()
