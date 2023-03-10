@@ -9,7 +9,6 @@ from adminapp.models import Shop
 from authapp.models import User
 from mainapp.models import Item
 
-
 inn_validator = RegexValidator(r"[0-9]{12}", message="Некорректный ИНН.")
 kpp_validator = RegexValidator(r"[0-9]{9}", message="Некорректный КПП.")
 
@@ -88,45 +87,23 @@ class Order(models.Model):
     updated_at = models.DateTimeField(auto_now=True, verbose_name="Дата обновления")
     finished_at = models.DateTimeField(null=True, blank=True, verbose_name="Дата завершения")
     status = models.CharField(max_length=3, choices=STATUS_CHOICES, default=CREATED, verbose_name="Статус")
-    customer_data = models.ForeignKey(CustomerData, on_delete=models.SET_NULL, null=True, blank=True, verbose_name="Контактное лицо")
+    customer_data = models.ForeignKey(CustomerData, on_delete=models.SET_NULL, null=True, blank=True,
+                                      verbose_name="Контактное лицо")
     comment = models.TextField(null=True, blank=True, verbose_name="Комментарий к заказу")
-    organization = models.ForeignKey(Organization, on_delete=models.SET_NULL, null=True, blank=True, verbose_name="Организация")
+    organization = models.ForeignKey(Organization, on_delete=models.SET_NULL, null=True, blank=True,
+                                     verbose_name="Организация")
     pickup_shop = models.ForeignKey(Shop, on_delete=models.SET_NULL, null=True, blank=True, verbose_name="Самовывоз")
-    payment_type = models.CharField(max_length=3, choices=PAYMENT_CHOICES, default=UPON_RECEIPT, verbose_name="Способ оплаты")
+    payment_type = models.CharField(max_length=3, choices=PAYMENT_CHOICES, default=UPON_RECEIPT,
+                                    verbose_name="Способ оплаты")
     delivery = models.ForeignKey(Delivery, on_delete=models.SET_NULL, null=True, blank=True, verbose_name="Доставка")
 
     __db_order: "Order" = None
+
     @property
     def db_order(self):
         if not self.__db_order:
             self.__db_order = Order.objects.get(pk=self.pk)
         return self.__db_order
-
-    def save(self, *args, **kwargs) -> None:
-        self.full_clean()
-
-        if not self._state.adding:
-            if self.delivery and self.pickup_shop:
-                if self.db_order.delivery:
-                    self.delivery = None
-                elif self.db_order.pickup_shop:
-                    self.pickup_shop = None
-        return super().save(*args, **kwargs)
-
-    def clean(self) -> None:
-        if (
-            self._state.adding and self.delivery and self.pickup_shop
-            or not self.delivery and not self.pickup_shop
-            ):
-            raise ValidationError("Выберите один способ получения.")
-
-        # Статусы заказов
-        if self.db_order.status == self.FINISHED:
-            raise ValidationError("Заказ уже выдан.")
-        elif self.db_order.status == self.CANCEL:
-            raise ValidationError("Заказ отменен.")
-
-        return super().clean()
 
     def finish(self):
         """
@@ -150,6 +127,7 @@ class OrderItem(models.Model):
     price = models.DecimalField('Цена', max_digits=10, decimal_places=2, blank=True)
 
     __db_orderitem: "OrderItem" = None
+
     @property
     def db_orderitem(self):
         if not self.__db_orderitem:
@@ -187,7 +165,7 @@ class OrderItem(models.Model):
         else:
             if self.quantity > self.item.quantity:
                 raise ValidationError((f"Нет такого количества товара. Доступно: {self.item.quantity} шт."))
-        
+
         return super().clean()
 
     def change_quantity(self, diff: int):
