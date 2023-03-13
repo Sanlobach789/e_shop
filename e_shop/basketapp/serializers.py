@@ -28,7 +28,7 @@ class BasketSerializer(serializers.ModelSerializer):
 
 class ItemBasketActionSerializer(serializers.Serializer):
     """Сериализатор добавления и удаления товара в/из корзины"""
-    item_id = serializers.UUIDField()
+    item_id = serializers.IntegerField()
     quantity = serializers.IntegerField(min_value=1)
 
 
