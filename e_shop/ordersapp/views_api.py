@@ -18,7 +18,6 @@ from .serializers import (
 class OrderModelViewSet(viewsets.ReadOnlyModelViewSet,
                         mixins.CreateModelMixin):
     queryset = Order.objects.all()
-    serializer_class = OrderSerializer
     permission_classes = (AllowAny,)
 
     def get_queryset(self):
@@ -30,7 +29,8 @@ class OrderModelViewSet(viewsets.ReadOnlyModelViewSet,
     def get_serializer_class(self):
         if self.action == 'create':
             return CreateOrderSerializer
-        return super().get_serializer_class()
+        else:
+            return OrderSerializer
 
     def get_permissions(self):
         if self.action == 'list':
@@ -42,9 +42,10 @@ class OrderModelViewSet(viewsets.ReadOnlyModelViewSet,
         HTTPStatus.BAD_REQUEST.value: 'Bad Request',
     })
     def create(self, request, *args, **kwargs):
-        serializer: CreateOrderSerializer = self.get_serializer(data=request.data, context={'request': request})
-        serializer.is_valid(raise_exception=True)
-        self.perform_create(serializer)
+        serializer = self.get_serializer_class()
+        serializer = serializer(data=request.data, context={'request': request})
+        serializer.is_valid()
+        serializer.save()
         response_serializer = OrderSerializer(serializer.instance)
         return Response(response_serializer.data, status=status.HTTP_201_CREATED)
 

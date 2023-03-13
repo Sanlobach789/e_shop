@@ -80,7 +80,7 @@ class CreateOrderSerializer(serializers.ModelSerializer):
 
             # Переносим товары из корзины в заказ
             for el in basketitems:
-                OrderItem.objects.create(order=order, item=el.item, quantity=el.quantity)
+                OrderItem.objects.create(order=order, item=el.item, quantity=el.quantity, price=el.item.price)
             # Очищаем корзину
             basket.clear()
 
@@ -96,7 +96,7 @@ class OrderSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Order
-        fields = ('customer_data', 'comment', 'organization', 'pickup_shop', 'delivery', 'payment_type', 'items')
+        fields = ('id', 'customer_data', 'comment', 'organization', 'pickup_shop', 'delivery', 'payment_type', 'items')
 
 
 class ActionStatusOrderSerializer(serializers.Serializer):

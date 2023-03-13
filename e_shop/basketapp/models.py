@@ -1,5 +1,6 @@
 from decimal import Decimal
 from typing import Union, List, Tuple
+from uuid import uuid4
 
 from django.db import models, transaction
 from django.conf import settings
@@ -12,6 +13,7 @@ from mainapp.models import Item
 
 class Basket(models.Model):
     """Модель корзины"""
+    id = models.UUIDField(primary_key=True, editable=False, default=uuid4)
     user = models.OneToOneField(settings.AUTH_USER_MODEL, on_delete=models.CASCADE,
                                 verbose_name='Пользователь', null=True, blank=True)
 
