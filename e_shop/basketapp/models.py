@@ -29,7 +29,7 @@ class Basket(models.Model):
         if quantity < 0:
             raise ValueError('Нельзя добавить отрицательное колчество товаров')
 
-        item = get_object_or_404(Item, pk=item.pk)
+        item = get_object_or_404(Item, pk=item)
 
         itembasket, _ = self.itembasket_set.get_or_create(item=item)
         itembasket.quantity += quantity
