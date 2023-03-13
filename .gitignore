@@ -135,4 +135,5 @@ e_shop/e_shop/env.py
 
 e_shop/*/migrations
 e_shop/media/category_images
+e_shop/media/item_images
 e_shop/e_shop/debug.log
