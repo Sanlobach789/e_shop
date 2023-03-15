@@ -37,17 +37,13 @@ class OrderModelViewSet(viewsets.ReadOnlyModelViewSet,
             return [IsAuthenticated()]
         return super().get_permissions()
 
-    @swagger_auto_schema(responses={
-        HTTPStatus.OK.value: OrderSerializer,
-        HTTPStatus.BAD_REQUEST.value: 'Bad Request',
-    })
     def create(self, request, *args, **kwargs):
         serializer = self.get_serializer_class()
         serializer = serializer(data=request.data, context={'request': request})
         serializer.is_valid()
         serializer.save()
         response_serializer = OrderSerializer(serializer.instance)
-        return Response(response_serializer.data, status=status.HTTP_201_CREATED)
+        return Response(response_serializer.data)
 
 
 class OrganizationModelViewSet(viewsets.GenericViewSet,
