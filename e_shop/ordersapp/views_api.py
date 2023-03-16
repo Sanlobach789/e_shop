@@ -42,8 +42,8 @@ class OrderModelViewSet(viewsets.ReadOnlyModelViewSet,
         serializer = serializer(data=request.data, context={'request': request})
         serializer.is_valid()
         serializer.save()
-        response_serializer = OrderSerializer(serializer.instance)
-        return Response(response_serializer.data)
+        # response_serializer = OrderSerializer(serializer.instance)
+        return Response(serializer.data)
 
 
 class OrganizationModelViewSet(viewsets.GenericViewSet,
