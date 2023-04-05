@@ -59,3 +59,4 @@ class SearchItemModelViewSet(generics.ListAPIView):
     serializer_class = ItemShortSerializer
     filter_backends = (filters.SearchFilter,)
     search_fields = ('name',)
+    permission_classes = [AllowAny]
