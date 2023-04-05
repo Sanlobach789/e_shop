@@ -13,6 +13,7 @@ from .serializers import CategorySerializer, ItemShortSerializer, ItemSerializer
 class CategoryModelViewSet(viewsets.ReadOnlyModelViewSet):
     queryset = Category.objects.prefetch_related('categoryfiltervalue_set').all()
     serializer_class = CategorySerializer
+    permission_classes = [AllowAny]
 
     @swagger_auto_schema(responses={
         404: 'Category Not Found'
