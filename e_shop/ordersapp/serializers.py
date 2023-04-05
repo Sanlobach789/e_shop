@@ -62,29 +62,29 @@ class CreateOrderSerializer(serializers.ModelSerializer):
         user = self.context.get('request').user
 
         # Если пользователь автирозован, то ...
-        if vars(user):
+        if user:
             # ... просто берем его корзину
-            basket: Basket = user.basket
+            basket = user.basket
         else:
             # ... пытаемся получить корзину
             # basket: Basket = get_object_or_404(Basket, pk=self.context.get('request').headers.get('Basket'))
-            basket: Basket = get_object_or_404(Basket, pk=self.validated_data.get('basket_id'))
+            basket = Basket.objects.filter(pk=self.validated_data.get('basket_id')).first()
+        if basket:
+            with transaction.atomic():
+                order = super().save(**kwargs)
 
-        with transaction.atomic():
-            order = super().save(**kwargs)
+                basketitems = basket.itembasket_set.select_related('item')
+                # Проверяем, что корзина не пустая
+                if basketitems.count() == 0:
+                    raise ValidationError('Нет товаров в корзине')
 
-            basketitems = basket.itembasket_set.select_related('item')
-            # Проверяем, что корзина не пустая
-            if basketitems.count() == 0:
-                raise ValidationError('Нет товаров в корзине')
+                # Переносим товары из корзины в заказ
+                for el in basketitems:
+                    OrderItem.objects.create(order=order, item=el.item, quantity=el.quantity, price=el.item.price)
+                # Очищаем корзину
+                basket.clear()
 
-            # Переносим товары из корзины в заказ
-            for el in basketitems:
-                OrderItem.objects.create(order=order, item=el.item, quantity=el.quantity, price=el.item.price)
-            # Очищаем корзину
-            basket.clear()
-
-        return order
+            return order
 
 
 class OrderSerializer(serializers.ModelSerializer):

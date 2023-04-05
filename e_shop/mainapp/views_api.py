@@ -3,6 +3,7 @@ from rest_framework import viewsets, filters, generics
 from drf_yasg.utils import swagger_auto_schema
 from django.shortcuts import get_object_or_404
 from rest_framework.pagination import PageNumberPagination
+from rest_framework.permissions import AllowAny
 
 from .models import Category, Item
 from .filters import ItemFilter, CustomPagination
@@ -24,6 +25,7 @@ class ItemModelViewSet(viewsets.ReadOnlyModelViewSet):
     queryset = Item.objects.all()
     filterset_class = ItemFilter
     pagination_class = CustomPagination
+    permission_classes = [AllowAny]
 
     def get_serializer_class(self):
         if self.action == 'list':
