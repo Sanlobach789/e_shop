@@ -14,6 +14,7 @@ class CategoryModelViewSet(viewsets.ReadOnlyModelViewSet):
     queryset = Category.objects.prefetch_related('categoryfiltervalue_set').all()
     serializer_class = CategorySerializer
     permission_classes = [AllowAny]
+    authentication_classes = []
 
     @swagger_auto_schema(responses={
         404: 'Category Not Found'
@@ -27,6 +28,7 @@ class ItemModelViewSet(viewsets.ReadOnlyModelViewSet):
     filterset_class = ItemFilter
     pagination_class = CustomPagination
     permission_classes = [AllowAny]
+    authentication_classes = []
 
     def get_serializer_class(self):
         if self.action == 'list':
@@ -60,3 +62,4 @@ class SearchItemModelViewSet(generics.ListAPIView):
     filter_backends = (filters.SearchFilter,)
     search_fields = ('name',)
     permission_classes = [AllowAny]
+    authentication_classes = []
